@@ -1,10 +1,10 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:top_up_bd/screens/home_screen.dart';
+import 'package:top_up_bd/screens/main_nav_screen.dart';
 
 void main() {
   runApp( DevicePreview(
-    enabled: true,
+    enabled: false,
     builder: (context) => const MyApp(), // Wrap your app
   ),);
 }
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       builder: DevicePreview.appBuilder,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
-      home: const HomeScreen(),
+      home: const MainNavScreen(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:top_up_bd/data/api_urls.dart';
 
 class HomeController extends GetxController {
   var selectedIndex = 0.obs;
@@ -14,7 +15,7 @@ class HomeController extends GetxController {
   void fetchProducts() async {
     try {
       final response = await http.get(
-        Uri.parse('https://codmshopbd.com/myapp/api/topupbd/topupbd.php?category_id=15'),
+        Uri.parse('${ApiUrls.mainUrls}/topupbd/topupbd.php?category_id=15'),
       );
 
       if (response.statusCode == 200) {
@@ -36,7 +37,7 @@ class HomeController extends GetxController {
   void fetchSliderImage() async {
     try {
       final response = await http.get(
-        Uri.parse('https://codmshopbd.com/myapp/api/sliderimageshow.php?api_key=emon'),
+        Uri.parse(ApiUrls.sliderImageUrls),
       );
 
       if (response.statusCode == 200) {

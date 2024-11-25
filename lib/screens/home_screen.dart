@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/home_controller.dart';
 import '../utils/AppColors.dart';
-import '../widget/drawer.dart';
 import '../widget/loading_animation.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,18 +16,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeController homeController = Get.put(HomeController());
 
   @override
-  void initState() {
-    homeController.fetchProducts();
-    homeController.fetchSliderImage();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: _buildAppBar(),
-      drawer: myappDrawer(context),
       body: Obx(() => homeController.isLoading.value
           ? const Center(
               child: Column(
@@ -37,37 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ))
           : _buildBody(homeController)),
       backgroundColor: Colors.grey[100],
-      // Use reusable background color
-      bottomNavigationBar: _buildBottomNavigationBar(homeController),
+
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      title: const Text(
-        'Top Up BD',
-        style: AppTextStyles.appBarTitle, // Reuse the text style
-      ),
-      backgroundColor: AppColors.primaryColor,
-      // Reuse primary color
-      elevation: 0,
-      iconTheme: const IconThemeData(color: AppColors.white),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_none),
-          onPressed: () {
-            // Handle notifications
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.account_circle),
-          onPressed: () {
-            // Handle profile
-          },
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildBody(HomeController homeController) {
     return LayoutBuilder(
@@ -88,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     )),
                 const SizedBox(
-                  height: 10,
+                  height: 13,
                 ),
                 Center(
                   child: Text(
@@ -98,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         : AppTextStyles.bodyTextSmall, // Reuse text styles
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 _buildProductGrid(homeController, constraints),
               ],
             ),
@@ -147,8 +111,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 10),
                   Text(
                     product['name'],
-                    style:
-                        AppTextStyles.productTitle, // Reuse product title style
+                    style: TextStyle(color: isSelected
+                        ? AppColors.selectedBorderColor
+                        : Colors.black,), // Reuse product title style
                   ),
                   Text(
                     '${product['price']} BDT',
@@ -160,32 +125,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Obx _buildBottomNavigationBar(HomeController homeController) {
-    return Obx(
-      () => BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'হোম',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.swap_horiz),
-            label: 'অর্ডার হিস্টোরি',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'প্রোফাইল',
-          ),
-        ],
-        currentIndex: homeController.selectedIndex.value,
-        selectedItemColor: AppColors.primaryColor,
-        unselectedItemColor: AppColors.unselectedItemColor,
-        // Reuse unselected item color
-        onTap: homeController.changeTabIndex,
       ),
     );
   }
