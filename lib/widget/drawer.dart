@@ -1,56 +1,100 @@
 import 'package:flutter/material.dart';
 
-myappDrawer(BuildContext context)=> Drawer(
-  child: ListView(
-    padding: EdgeInsets.zero,
-    children: [
-      DrawerHeader(
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-        ),
-        child: Text(
-          'Menu',
-          style: TextStyle(
-            color: Colors.grey[800],
-            fontSize: 24,
+import '../utils/AppColors.dart';
+
+
+class MyAppDrawer extends StatelessWidget {
+  const MyAppDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      backgroundColor: AppColors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildDrawerHeader(),
+          _buildDrawerItem(
+            icon: Icons.home,
+            title: 'Home',
+            onTap: () {
+              // Handle navigation to Home
+              Navigator.pop(context);
+            },
           ),
+          _buildDrawerItem(
+            icon: Icons.shopping_cart,
+            title: 'My Orders',
+            onTap: () {
+              // Handle navigation to My Orders
+              Navigator.pop(context);
+            },
+          ),
+          _buildDrawerItem(
+            icon: Icons.account_circle,
+            title: 'Profile',
+            onTap: () {
+              // Handle navigation to Profile
+              Navigator.pop(context);
+            },
+          ),
+          _buildDrawerItem(
+            icon: Icons.settings,
+            title: 'Settings',
+            onTap: () {
+              // Handle navigation to Settings
+              Navigator.pop(context);
+            },
+          ),
+          const Spacer(),
+          _buildDrawerItem(
+            icon: Icons.logout,
+            title: 'Logout',
+            onTap: () {
+              // Handle logout
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerHeader() {
+    return UserAccountsDrawerHeader(
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor,
+      ),
+      accountName: Text(
+        'John Doe',
+        style: TextStyle(fontSize: 14),
+      ),
+      accountEmail: Text(
+        'john.doe@example.com',
+        style: AppTextStyles.bodyTextSmall.copyWith(color: AppColors.white),
+      ),
+      currentAccountPicture: CircleAvatar(
+        backgroundColor: Colors.grey[300],
+        child: Text(
+          'JD',
+          style: AppTextStyles.bodyTextLarge.copyWith(color: AppColors.black),
         ),
       ),
-      ListTile(
-        leading: Icon(Icons.home, color: Colors.grey[800]),
-        title: const Text('Home'),
-        onTap: () {
-          Navigator.pop(context);
-        },
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.primaryColor),
+      title: Text(
+        title,
+        style: AppTextStyles.bodyTextMedium.copyWith(color: AppColors.black),
       ),
-      ListTile(
-        leading: Icon(Icons.history, color: Colors.grey[800]),
-        title: const Text('Transaction History'),
-        onTap: () {
-          // Navigate to transaction history
-        },
-      ),
-      ListTile(
-        leading: Icon(Icons.settings, color: Colors.grey[800]),
-        title: const Text('Settings'),
-        onTap: () {
-          // Navigate to settings
-        },
-      ),
-      ListTile(
-        leading: Icon(Icons.help, color: Colors.grey[800]),
-        title: const Text('Help & Support'),
-        onTap: () {
-          // Navigate to help and support
-        },
-      ),
-      ListTile(
-        leading: Icon(Icons.logout, color: Colors.grey[800]),
-        title: const Text('Logout'),
-        onTap: () {
-          // Handle logout
-        },
-      ),
-    ],
-  ),
-);
+      onTap: onTap,
+    );
+  }
+}

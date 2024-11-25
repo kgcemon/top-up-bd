@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:top_up_bd/screens/register_screen.dart';
+
 import '../utils/AppColors.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +19,22 @@ class LoginScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 50), // Adds top spacing
-                Text(
-                  'Welcome Back',
-                  style: AppTextStyles.bodyTextLarge,  // Use reusable text style
+                const Text(
+                  'Create Account',
+                  style: AppTextStyles.bodyTextLarge,  // Reuse large text style
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Login to your account',
-                  style: AppTextStyles.bodyTextSmall, // Use reusable text style
+                const Text(
+                  'Sign up to get started',
+                  style: AppTextStyles.bodyTextSmall,  // Reuse small text style
                 ),
                 const SizedBox(height: 40),
+                _buildTextField(
+                  label: 'Name',
+                  hintText: 'Enter your name',
+                  icon: Icons.person_outline,
+                ),
+                const SizedBox(height: 20),
                 _buildTextField(
                   label: 'Email',
                   hintText: 'Enter your email',
@@ -40,26 +47,17 @@ class LoginScreen extends StatelessWidget {
                   icon: Icons.lock_outline,
                   obscureText: true,
                 ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () {
-                      // Handle forgot password
-                    },
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.primaryColor,
-                      ),
-                    ),
-                  ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  label: 'Confirm Password',
+                  hintText: 'Re-enter your password',
+                  icon: Icons.lock_outline,
+                  obscureText: true,
                 ),
                 const SizedBox(height: 40),
-                _buildLoginButton(context),
+                _buildRegisterButton(context),
                 const SizedBox(height: 20),
-                _buildSignUpOption(),
+                _buildLoginOption(),
               ],
             ),
           ),
@@ -102,13 +100,13 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginButton(BuildContext context) {
+  Widget _buildRegisterButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          // Handle login action
+          // Handle registration action
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryColor,  // Reuse primary color
@@ -118,7 +116,7 @@ class LoginScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
         child: Text(
-          'Login',
+          'Register',
           style: TextStyle(
             color: AppColors.white,  // Reuse white color for text
             fontSize: 16,
@@ -129,20 +127,20 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSignUpOption() {
+  Widget _buildLoginOption() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Don't have an account? ",
+          "Already have an account? ",
           style: TextStyle(fontSize: 14, color: AppColors.grey),
         ),
         GestureDetector(
           onTap: () {
-            Get.to(()=>const RegisterScreen());
+            // Handle login navigation
           },
           child: Text(
-            'Sign Up',
+            'Login',
             style: TextStyle(
               fontSize: 14,
               color: AppColors.primaryColor,

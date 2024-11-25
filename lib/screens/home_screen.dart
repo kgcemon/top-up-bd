@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:top_up_bd/screens/checkout_screen.dart';
 import '../controller/home_controller.dart';
 import '../utils/AppColors.dart';
+import '../widget/drawer.dart';
 import '../widget/loading_animation.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,6 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      drawer: const MyAppDrawer(),
+      appBar: _buildAppBar(),
       body: Obx(() => homeController.isLoading.value
           ? const Center(
               child: Column(
@@ -31,6 +35,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: const Text(
+        'Top Up BD',
+        style: AppTextStyles.appBarTitle, // Reuse the text style
+      ),
+      backgroundColor: AppColors.primaryColor,
+      // Reuse primary color
+      elevation: 0,
+      iconTheme: const IconThemeData(color: AppColors.white),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_none),
+          onPressed: () {
+            // Handle notifications
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.account_circle),
+          onPressed: () {
+            // Handle profile
+          },
+        ),
+      ],
+    );
+  }
 
 
   Widget _buildBody(HomeController homeController) {
@@ -104,8 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: InkWell(
               onTap: () {
                 homeController.selectProduct(index);
+                Get.to(()=>const CheckOutScreen());
               },
-              child: Column(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 10),
@@ -115,10 +146,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? AppColors.selectedBorderColor
                         : Colors.black,), // Reuse product title style
                   ),
-                  Text(
-                    '${product['price']} BDT',
-                    style:
-                        AppTextStyles.productPrice, // Reuse product price style
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      '${product['price']}৳',
+                      style:
+                           const TextStyle(fontSize: 10,color: AppColors.primaryColor), // Reuse product price style
+                    ),
                   ),
                 ],
               ),
