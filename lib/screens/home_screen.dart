@@ -268,20 +268,34 @@ class _HomeScreenState extends State<HomeScreen> {
           ElevatedButton(
             onPressed: () {
               homeController.playerIsLoading.value = false;
-              if (uidController.text.isEmpty || uidController.text.length < 5) {
-                errorMessage.value = "এতো ছোট আইডি হয়না";
+              String input =
+                  uidController.text;
+              bool _isInt = int.tryParse(
+                      input.removeAllWhitespace.trim().replaceAll("-", "")) ==
+                  null; // will be true if it's a valid integer, false otherwise
+              if (uidController.text.isEmpty ||
+                  uidController.text.length < 5 ||
+                  _isInt) {
+                errorMessage.value = "Please Give Valid Player ID";
               } else {
                 errorMessage.value = '';
-                homeController.playerIdCheck(uid: uidController.text).then(
-                      (value) {
-                        if(value == true){
-                          Get.to(()=>const CheckOutScreen(img: "img", prices: "prices", productName: "productName"));
-                        }else{
-                          errorMessage.value = homeController.playerID.value;
-                          print("object");
-                        }
-                      },
-                    );
+                homeController
+                    .playerIdCheck(
+                        uid: uidController.text.removeAllWhitespace
+                            .replaceAll("-", "").trim())
+                    .then(
+                  (value) {
+                    if (value == true) {
+                      Get.to(() => const CheckOutScreen(
+                          img: "img",
+                          prices: "prices",
+                          productName: "productName"));
+                    } else {
+                      errorMessage.value = homeController.playerID.value;
+                      print("object");
+                    }
+                  },
+                );
               }
             },
             style: ElevatedButton.styleFrom(

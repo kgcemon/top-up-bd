@@ -1,8 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:top_up_bd/data/api_urls.dart';
-import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
   var selectedIndex = 0.obs;
@@ -13,7 +13,6 @@ class HomeController extends GetxController {
   RxString homeImage = ''.obs;
   RxString playerID = ''.obs;
 
-
   // Function to fetch products from the API
   void fetchProducts() async {
     try {
@@ -23,7 +22,9 @@ class HomeController extends GetxController {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        print(data);
+        if (kDebugMode) {
+          print(data);
+        }
         products.value = data['data']['products'];
       } else {
         Get.snackbar('Error', 'Failed to load products');
@@ -35,7 +36,6 @@ class HomeController extends GetxController {
     }
   }
 
-
   // Function to fetch products from the API
   void fetchSliderImage() async {
     try {
@@ -46,9 +46,10 @@ class HomeController extends GetxController {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         homeImage.value = "https://codmshopbd.com/myapp/${data[0]}";
-        print(homeImage.value);
-      } else {
-      }
+        if (kDebugMode) {
+          print(homeImage.value);
+        }
+      } else {}
     } catch (e) {
       Get.snackbar('Error', 'An error occurred: $e');
     }
@@ -63,28 +64,53 @@ class HomeController extends GetxController {
     update();
   }
 
-
-  Future<bool> playerIdCheck({required String uid})async{
+  Future<bool> playerIdCheck({required String uid}) async {
+    if (kDebugMode) {
+      print(uid);
+    }
     playerIsLoading.value = true;
-    var response = await http.get(Uri.parse("https://codzshop.com/uidchecker/new.php?id=$uid"));
-    playerIsLoading.value = false;
-    print(response.body);
-    if(response.statusCode == 200){
-      var data = jsonDecode(response.body);
-      bool isValid = data['error'] != null;
-      if(isValid){
-        playerID.value = data['error'];
-        return false;
-      }else if(!isValid){
-        playerID.value = data['nickname'];
-
-        playerIsLoading.value = false;
-      }
-      return true;
-    }else{
+    playerID.value = '';
+    try {
+      var response = await http
+          .get(Uri.parse("https://codzshop.com/uidchecker/new.php?id=$uid"));
       playerIsLoading.value = false;
-      return true;
+      if (kDebugMode) {
+        print(response.body);
+      }
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        bool isValid = data['error'] != null &&
+            !data['error']
+                .toString()
+                .contains("HTTP Error during POST request");
+        bool isValidRegion = data['region'] != null && data['region'] != "BD";
+        if (isValid) {
+          playerID.value = data['error'];
+          return false;
+        } else if (isValidRegion) {
+          playerID.value = "Give only Bangladeshi Uid";
+          return false;
+        } else {
+          playerID.value = data['nickname'];
+          playerIsLoading.value = false;
+        }
+        return true;
+      } else if (response.statusCode == 200 &&
+          response.body.contains("HTTP Error during POST request")) {
+        return true;
+      } else if (response.statusCode == 500) {
+        return true;
+      } else {
+        playerIsLoading.value = false;
+        return true;
+      }
+    } catch (e) {
+      // Catch any errors (network issues, JSON issues, etc.)
+      playerIsLoading.value = false;
+      if (kDebugMode) {
+        print("Error occurred: $e");
+      }
+      return true; // Return false in case of an error
     }
   }
-
 }
