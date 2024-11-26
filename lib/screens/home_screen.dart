@@ -14,24 +14,30 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   final HomeController homeController = Get.put(HomeController());
+  TextEditingController uidController = TextEditingController();
+  RxString errorMessage = ''.obs; // RxString to track error message
+
+  @override
+  void dispose() {
+    uidController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       drawer: const MyAppDrawer(),
       appBar: _buildAppBar(),
       body: Obx(() => homeController.isLoading.value
           ? const Center(
               child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [LoadingAnimation(), Text("Loading..")],
-            ))
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [LoadingAnimation(), Text("Loading..")],
+              ),
+            )
           : _buildBody(homeController)),
       backgroundColor: Colors.grey[100],
-
     );
   }
 
@@ -39,10 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return AppBar(
       title: const Text(
         'Top Up BD',
-        style: AppTextStyles.appBarTitle, // Reuse the text style
+        style: AppTextStyles.appBarTitle,
       ),
       backgroundColor: AppColors.primaryColor,
-      // Reuse primary color
       elevation: 0,
       iconTheme: const IconThemeData(color: AppColors.white),
       actions: [
@@ -62,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Widget _buildBody(HomeController homeController) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -73,23 +77,24 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                    height: 120,
-                    width: double.infinity,
-                    child: Obx(
-                      () => homeController.homeImage.value.isEmpty ? const LoadingAnimation() : Image.network(
-                        homeController.homeImage.value,
-                        fit: BoxFit.cover,
-                      ),
-                    )),
-                const SizedBox(
-                  height: 13,
+                  height: 120,
+                  width: double.infinity,
+                  child: Obx(
+                    () => homeController.homeImage.value.isEmpty
+                        ? const LoadingAnimation()
+                        : Image.network(
+                            homeController.homeImage.value,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
                 ),
+                const SizedBox(height: 13),
                 Center(
                   child: Text(
                     'কত ডায়মন্ড নিবেন সিলেক্ট করুন',
                     style: constraints.maxWidth > 600
                         ? AppTextStyles.bodyTextLarge
-                        : AppTextStyles.bodyTextSmall, // Reuse text styles
+                        : AppTextStyles.bodyTextSmall,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -134,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: InkWell(
               onTap: () {
                 homeController.selectProduct(index);
-                Get.to(()=>const CheckOutScreen());
+                _showPlayerIDDialog(context);
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -142,16 +147,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 10),
                   Text(
                     product['name'],
-                    style: TextStyle(color: isSelected
-                        ? AppColors.selectedBorderColor
-                        : Colors.black,), // Reuse product title style
+                    style: TextStyle(
+                      color: isSelected
+                          ? AppColors.selectedBorderColor
+                          : Colors.black,
+                    ),
                   ),
+                  const SizedBox(width: 10),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(
                       '${product['price']}৳',
-                      style:
-                           const TextStyle(fontSize: 10,color: AppColors.primaryColor), // Reuse product price style
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.primaryColor,
+                      ),
                     ),
                   ),
                 ],
@@ -159,6 +169,140 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showPlayerIDDialog(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Player ID",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            InkWell(
+                onTap: () => Get.back(),
+                child: const Icon(
+                  Icons.backspace_outlined,
+                  color: Colors.red,
+                ))
+          ],
+        ),
+        content: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: homeController.playerIsLoading.value
+                    ? const LoadingAnimation()
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "আপনার গেমের প্লেয়ার আইডি দিন*",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          TextField(
+                            controller: uidController,
+                            decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                  color: AppColors.primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                  color: Colors.red,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                  color: AppColors.primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                  color: AppColors.primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              filled: true,
+                              fillColor: AppColors.white,
+                              labelText: "Player ID",
+                              labelStyle: const TextStyle(
+                                color: AppColors.grey,
+                              ),
+                              errorText: errorMessage.value.isNotEmpty
+                                  ? errorMessage.value
+                                  : null, // Show error message if present
+                            ),
+                            style: const TextStyle(
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              homeController.playerIsLoading.value = false;
+              if (uidController.text.isEmpty || uidController.text.length < 5) {
+                errorMessage.value = "এতো ছোট আইডি হয়না";
+              } else {
+                errorMessage.value = '';
+                homeController.playerIdCheck(uid: uidController.text).then(
+                      (value) {
+                        if(value == true){
+                          Get.to(()=>const CheckOutScreen(img: "img", prices: "prices", productName: "productName"));
+                        }else{
+                          errorMessage.value = homeController.playerID.value;
+                          print("object");
+                        }
+                      },
+                    );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 45),
+              backgroundColor: AppColors.primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Submit',
+              style: TextStyle(
+                color: AppColors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
       ),
     );
   }

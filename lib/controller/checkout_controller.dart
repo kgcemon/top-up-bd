@@ -1,26 +1,32 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:top_up_bd/data/api_urls.dart';
+import '../data/models/payment_model.dart';
 
 class CheckOutController extends GetxController {
-  var isPlacingOrder = false.obs; // Tracks if the order is being placed
-  var totalAmount = 0.obs; // Holds the total amount of the order
-  var cartItems = <Map<String, dynamic>>[].obs; // Holds the cart items
-  var paymentMethods = ['Cash On Delivery', 'Credit Card', 'bKash'].obs; // List of payment methods
-  var selectedPaymentMethod = 0.obs; // Tracks selected payment method
+  var isPlacingOrder = false.obs;
+  var totalAmount = 0.obs;
+  var paymentMethods = <PaymentModel>[].obs;
+  var selectedPaymentMethod = 0.obs;
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController playerIDController = TextEditingController();
+  RxInt paymentIndex = 0.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadCartItems(); // Load cart items when the controller is initialized
-  }
 
-  // Method to load cart items (replace with actual data)
-  void loadCartItems() {
-    // Mock cart data
-    cartItems.assignAll([
-      {'name': 'Product 1', 'price': 200},
-      {'name': 'Product 2', 'price': 300},
-    ]);
 
+  void loadPayment()async{
+    if(paymentMethods.isEmpty){
+      var response = await http.get(Uri.parse("${ApiUrls.mainUrls}/paymentapi.php?api_key=emon"));
+      if(response.statusCode == 200){
+        List data = jsonDecode(response.body);
+        for (var element in data) {
+          paymentMethods.add(PaymentModel.fromJson(element as Map<String, dynamic>));
+        }
+        update();
+      }
+    }
   }
 
   // Method to select payment method
@@ -32,15 +38,17 @@ class CheckOutController extends GetxController {
   void placeOrder() async {
     isPlacingOrder(true);
     try {
-      // Simulate order placement delay
       await Future.delayed(const Duration(seconds: 2));
-
-      // Show success message
+      playerIDController.clear();
       Get.snackbar('Success', 'Order placed successfully!');
     } catch (e) {
       Get.snackbar('Error', 'Failed to place order');
     } finally {
       isPlacingOrder(false);
     }
+  }
+
+  void paymentMethodSelect(int index){
+    paymentIndex.value = index;
   }
 }

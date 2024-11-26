@@ -2,13 +2,16 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:top_up_bd/data/api_urls.dart';
+import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
   var selectedIndex = 0.obs;
   var products = [].obs;
   var isLoading = true.obs;
+  var playerIsLoading = false.obs;
   int selectedProductIndex = -1;
   RxString homeImage = ''.obs;
+  RxString playerID = ''.obs;
 
 
   // Function to fetch products from the API
@@ -20,7 +23,7 @@ class HomeController extends GetxController {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-
+        print(data);
         products.value = data['data']['products'];
       } else {
         Get.snackbar('Error', 'Failed to load products');
@@ -59,4 +62,29 @@ class HomeController extends GetxController {
     selectedProductIndex = index;
     update();
   }
+
+
+  Future<bool> playerIdCheck({required String uid})async{
+    playerIsLoading.value = true;
+    var response = await http.get(Uri.parse("https://codzshop.com/uidchecker/new.php?id=$uid"));
+    playerIsLoading.value = false;
+    print(response.body);
+    if(response.statusCode == 200){
+      var data = jsonDecode(response.body);
+      bool isValid = data['error'] != null;
+      if(isValid){
+        playerID.value = data['error'];
+        return false;
+      }else if(!isValid){
+        playerID.value = data['nickname'];
+
+        playerIsLoading.value = false;
+      }
+      return true;
+    }else{
+      playerIsLoading.value = false;
+      return true;
+    }
+  }
+
 }

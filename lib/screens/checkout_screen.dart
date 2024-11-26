@@ -1,14 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:top_up_bd/widget/loading_animation.dart';
 import '../controller/checkout_controller.dart';
 import '../utils/AppColors.dart';
 
-class CheckOutScreen extends StatelessWidget {
-  const CheckOutScreen({Key? key}) : super(key: key);
+class CheckOutScreen extends StatefulWidget {
+  final img;
+  final prices;
+  final productName;
+
+  const CheckOutScreen(
+      {super.key,
+        required this.img,
+        required this.prices,
+        required this.productName});
+
+  @override
+  State<CheckOutScreen> createState() => _CheckOutScreenState();
+}
+
+class _CheckOutScreenState extends State<CheckOutScreen> {
+  final CheckOutController checkOutController = Get.put(CheckOutController());
+
+  @override
+  void initState() {
+    checkOutController.loadPayment();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final CheckOutController checkOutController = Get.put(CheckOutController());
+    // Get screen dimensions
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -17,57 +41,49 @@ class CheckOutScreen extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.white),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildOrderSummary(checkOutController),
-            const SizedBox(height: 20),
-            _buildPaymentMethods(checkOutController),
-            const Spacer(),
-            _buildPlaceOrderButton(checkOutController),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Widget to display order summary
-  Widget _buildOrderSummary(CheckOutController controller) {
-    return Obx(
-          () => Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 2,
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Order Summary',
-                style: AppTextStyles.bodyTextSmall,
-              ),
-              const SizedBox(height: 10),
+              _buildPaymentMethods(checkOutController),
+              SizedBox(height: screenHeight * 0.02),
+              _buildPaymentDetails(checkOutController, screenWidth),
+              SizedBox(height: screenHeight * 0.02),
+              _buildPlaceOrderButton(checkOutController),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  // Widget to display payment methods
+  Widget _buildPaymentMethods(CheckOutController controller) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                'Total: ${controller.totalAmount.value} BDT',
+                'Product: ${widget.productName}',
                 style: AppTextStyles.bodyTextSmall.copyWith(
                   color: AppColors.primaryColor,
                 ),
               ),
               const SizedBox(height: 10),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: controller.cartItems.length,
-                itemBuilder: (context, index) {
-                  final item = controller.cartItems[index];
-                  return ListTile(
-                    title: Text(item['name'], style: AppTextStyles.productTitle),
-                    trailing: Text('${item['price']} BDT',
-                        style: AppTextStyles.productPrice),
-                  );
-                },
+              Text(
+                'Total: ${widget.prices} BDT',
+                style: AppTextStyles.bodyTextSmall.copyWith(
+                  color: AppColors.primaryColor,
+                ),
               ),
             ],
           ),
@@ -76,43 +92,95 @@ class CheckOutScreen extends StatelessWidget {
     );
   }
 
-  // Widget to display payment methods
-  Widget _buildPaymentMethods(CheckOutController controller) {
-    return Obx(
-          () => Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Payment Methods',
-                style: AppTextStyles.bodyTextSmall,
-              ),
-              const SizedBox(height: 10),
-              ListView.builder(
+  // Widget for payment details (Trx ID and Number fields)
+  Widget _buildPaymentDetails(CheckOutController controller, double screenWidth) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Obx(() => controller.paymentMethods.isEmpty? const LoadingAnimation() : Column(
+          children: [
+            const Text(
+              'কিসে পেমেন্ট করবেন সিলেক্ট করুন?',
+              style: AppTextStyles.bodyTextSmall,
+            ),
+            const SizedBox(height: 10),
+            GetBuilder<CheckOutController>(
+              builder: (controllers) => controller.paymentMethods.isEmpty
+                  ? const LoadingAnimation()
+                  : GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: controller.paymentMethods.length,
-                itemBuilder: (context, index) {
-                  final paymentMethod = controller.paymentMethods[index];
-                  return ListTile(
-                    leading: Radio(
-                      value: index,
-                      groupValue: controller.selectedPaymentMethod.value,
-                      onChanged: (int? value) {
-                        controller.selectPaymentMethod(value!);
-                      },
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: screenWidth > 600 ? 4 : 3,
+                  mainAxisExtent: 70,
+                ),
+                itemBuilder: (context, index) => Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Obx(() => InkWell(
+                    onTap: () => checkOutController.paymentIndex.value = index,
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: index == checkOutController.paymentIndex.value ? AppColors.primaryColor : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: index == checkOutController.paymentIndex.value ? AppColors.primaryColor : AppColors.primaryColor),
+                      ),
+                      child: Image.network(
+                          "https://codmshopbd.com/myapp/${controller.paymentMethods[index].img}"),
                     ),
-                    title: Text(paymentMethod, style: AppTextStyles.productTitle),
-                  );
-                },
+                  ),),
+                ),
               ),
-            ],
-          ),
-        ),
+            ),
+            Text(
+              "${controller.paymentMethods[controller.paymentIndex.value].paymentName} Send Money",
+              style: AppTextStyles.bodyTextMedium,
+            ),
+            Text(
+              controller.paymentMethods[controller.paymentIndex.value].number,
+              style: AppTextStyles.bodyTextMedium,
+            ),
+            Text(
+              controller.paymentMethods[controller.paymentIndex.value].info,
+              style: AppTextStyles.bodyTextSmall,
+            ),
+            TextField(
+              controller: controller.playerIDController,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.primaryColor),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.primaryColor),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                label: const Text("Number"),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.primaryColor),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.primaryColor),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                label: const Text("Trx ID"),
+              ),
+            ),
+          ],
+        )),
       ),
     );
   }
@@ -137,7 +205,8 @@ class CheckOutScreen extends StatelessWidget {
               ? const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
           )
-              : const Text('Place Order', style: AppTextStyles.bodyTextSmall),
+              : const Text('Place Order',
+              style: TextStyle(color: Colors.white)),
         ),
       ),
     );
