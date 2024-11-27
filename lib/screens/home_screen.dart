@@ -139,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: InkWell(
               onTap: () {
                 homeController.selectProduct(index);
-                _showPlayerIDDialog(context);
+                _showPlayerIDDialog(context, price: "${product['price']}৳", products: "${product['name']}", productsID: "${product['id']}");
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showPlayerIDDialog(BuildContext context) {
+  void _showPlayerIDDialog(BuildContext context, {required String price, required products, required String productsID}) {
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -274,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       input.removeAllWhitespace.trim().replaceAll("-", "")) ==
                   null; // will be true if it's a valid integer, false otherwise
               if (uidController.text.isEmpty ||
-                  uidController.text.length < 5 ||
+                  uidController.text.length < 6 ||
                   _isInt) {
                 errorMessage.value = "Please Give Valid Player ID";
               } else {
@@ -286,13 +286,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     .then(
                   (value) {
                     if (value == true) {
-                      Get.to(() => const CheckOutScreen(
-                          img: "img",
-                          prices: "prices",
-                          productName: "productName"));
+                      Get.to(() => CheckOutScreen(
+                          prices: price,
+                          productName: products,
+                        playerIDname: homeController.playerID.value,
+                        playerID: uidController.text,
+                        productID: '',
+                      ));
                     } else {
                       errorMessage.value = homeController.playerID.value;
-                      print("object");
                     }
                   },
                 );

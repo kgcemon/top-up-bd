@@ -85,16 +85,17 @@ class HomeController extends GetxController {
                 .contains("HTTP Error during POST request");
         bool isValidRegion = data['region'] != null && data['region'] != "BD";
         if (isValid) {
-          playerID.value = data['error'];
+          playerID.value = "আইডি ভুল সঠিক আইডি দিন";
           return false;
         } else if (isValidRegion) {
           playerID.value = "Give only Bangladeshi Uid";
           return false;
         } else {
+          Get.back();
           playerID.value = data['nickname'];
           playerIsLoading.value = false;
+          return true;
         }
-        return true;
       } else if (response.statusCode == 200 &&
           response.body.contains("HTTP Error during POST request")) {
         return true;

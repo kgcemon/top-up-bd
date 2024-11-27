@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:top_up_bd/screens/main_nav_screen.dart';
 import '../utils/AppColors.dart';
 
 
@@ -10,9 +11,10 @@ class ThankYouScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        centerTitle: true,
+        title: const Text(
           'Order Complete',
-          style: AppTextStyles.bodyTextLarge,
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: AppColors.primaryColor,
         iconTheme: const IconThemeData(color: AppColors.white),
@@ -122,8 +124,7 @@ class ThankYouScreen extends StatelessWidget {
   Widget _buildContinueShoppingButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        // Navigate to home or shopping screen
-        Navigator.of(context).pop(); // Or implement proper navigation
+        Get.offAll(()=> const MainNavScreen());
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryColor,
