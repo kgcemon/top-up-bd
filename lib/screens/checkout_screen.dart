@@ -152,7 +152,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                 children: [
                   const Text(
                     'কিসে সেন্ড মানি করবেন সিলেক্ট করুন?',
-                    style: AppTextStyles.bodyTextSmall,
+                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),
                   ),
                   const SizedBox(height: 10),
                   GetBuilder<CheckOutController>(

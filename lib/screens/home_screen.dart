@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:top_up_bd/screens/checkout_screen.dart';
+import 'package:top_up_bd/widget/ReviewDisplay.dart';
 import '../controller/home_controller.dart';
 import '../utils/AppColors.dart';
 import '../widget/drawer.dart';
@@ -99,6 +100,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 5),
                 _buildProductGrid(homeController, constraints),
+                const ReviewDisplay(reviews: [
+                  {
+                    'name': 'Sakib al hasan',
+                    'time': '1 hour ago',
+                    'text': 'Great product! I really love the quality and the customer service was fantastic.',
+                    'rating': 5.0,
+                  },
+                  {
+                    'name': 'Noman',
+                    'time': '2 hour ago',
+                    'text': 'The product is okay, but the delivery took too long.',
+                    'rating': 3.0,
+                  },
+                  {
+                    'name': 'Zoz batler',
+                    'time': '3 hour ago',
+                    'text': 'Not satisfied with the product. It broke after a week of use.',
+                    'rating': 1.0,
+                  },
+                  {
+                    'name': 'Urmi Akter',
+                    'time': '5 hour ago',
+                    'text': 'Good value for money. I would recommend this to my friends.',
+                    'rating': 4.0,
+                  },
+                ]),
               ],
             ),
           ),
@@ -125,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final isSelected = homeController.selectedProductIndex == index;
 
           return Card(
-            elevation: 2,
+            elevation: 1,
             color: AppColors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -182,9 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              "Player ID",
-              style: TextStyle(
+             Text(
+              "$products ",
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryColor,

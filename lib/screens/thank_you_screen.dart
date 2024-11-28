@@ -3,9 +3,20 @@ import 'package:get/get.dart';
 import 'package:top_up_bd/screens/main_nav_screen.dart';
 import '../utils/AppColors.dart';
 
-
 class ThankYouScreen extends StatelessWidget {
-  const ThankYouScreen({super.key});
+  final String orderID;
+  final String date;
+  final String total;
+  final String playerID;
+  final String product;
+
+  const ThankYouScreen(
+      {super.key,
+      required this.orderID,
+      required this.date,
+      required this.total,
+      required this.playerID,
+      required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -86,17 +97,23 @@ class ThankYouScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Order Summary',
-            style: TextStyle(fontWeight: FontWeight.bold,
-              color: AppColors.primaryColor,),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryColor,
+            ),
           ),
           const SizedBox(height: 10),
-          _buildOrderDetailsRow('Order ID:', '12345678'),
+          _buildOrderDetailsRow('Order ID:', '$orderID '),
           const SizedBox(height: 5),
-          _buildOrderDetailsRow('Date:', '25 November 2024'),
+          _buildOrderDetailsRow('Player Id:', playerID),
           const SizedBox(height: 5),
-          _buildOrderDetailsRow('Total:', 'BDT 1,200'),
+          _buildOrderDetailsRow('Product:', '$product '),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('Total:', '$total '),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('Date:', date),
         ],
       ),
     );
@@ -124,7 +141,7 @@ class ThankYouScreen extends StatelessWidget {
   Widget _buildContinueShoppingButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        Get.offAll(()=> const MainNavScreen());
+        Get.offAll(() => const MainNavScreen());
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryColor,
@@ -135,8 +152,10 @@ class ThankYouScreen extends StatelessWidget {
       ),
       child: const Text(
         'Continue Shopping',
-        style: TextStyle(fontWeight: FontWeight.bold,
-          color: Colors.white,),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }
