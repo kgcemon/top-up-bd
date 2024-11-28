@@ -71,8 +71,11 @@ class HomeController extends GetxController {
     playerIsLoading.value = true;
     playerID.value = '';
     try {
-      var response = await http
-          .get(Uri.parse("https://codzshop.com/uidchecker/new.php?id=$uid"));
+      var response = await http.get(
+        Uri.parse(
+          ApiUrls.uidChecker(uid),
+        ),
+      );
       playerIsLoading.value = false;
       if (kDebugMode) {
         print(response.body);

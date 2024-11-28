@@ -52,7 +52,8 @@ class CheckOutController extends GetxController {
     isPlacingOrder(true);
     try {
       // API URL
-      var url = Uri.parse("${ApiUrls.mainUrls}/topupbd/add_order.php?api_key=emon");
+      var url =
+          Uri.parse("${ApiUrls.mainUrls}/topupbd/add_order.php?api_key=emon");
 
       // Prepare request body
       var requestBody = {
@@ -103,12 +104,18 @@ class CheckOutController extends GetxController {
           } else if (responseMap['status'] == 'sucess') {
             print("Order placed: $responseMap");
 
-
             // Show success message
             Get.snackbar('Success', 'Order placed successfully!');
 
             // Navigate to thank you screen
-            Get.offAll(() => ThankYouScreen(orderID: responseMap["id"], date: responseMap["datetime"], total: total, playerID: userdata, product: itemtitle));
+            Get.offAll(() => ThankYouScreen(
+                  orderID: responseMap["id"],
+                  date: responseMap["datetime"],
+                  total: total,
+                  playerID: userdata,
+                  product: itemtitle,
+                  orderStatus: responseMap["order"],
+                ));
           } else {
             String errorMessage =
                 responseMap['message']?.toString() ?? 'Unknown error';
