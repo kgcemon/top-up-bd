@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:top_up_bd/screens/main_nav_screen.dart';
+import '../controller/thank_you_screen_controller.dart';
 import '../utils/AppColors.dart';
-import 'dart:async'; // Import for Timer
 
-class ThankYouScreen extends StatefulWidget {
+class ThankYouScreen extends StatelessWidget {
   final String orderID;
   final String date;
   final String total;
@@ -12,60 +12,26 @@ class ThankYouScreen extends StatefulWidget {
   final String product;
   final String orderStatus;
 
-  const ThankYouScreen(
-      {super.key,
-      required this.orderID,
-      required this.date,
-      required this.total,
-      required this.playerID,
-      required this.orderStatus,
-      required this.product});
-
-  @override
-  _ThankYouScreenState createState() => _ThankYouScreenState();
-}
-
-class _ThankYouScreenState extends State<ThankYouScreen> {
-  late Timer _timer;
-  int _remainingTime = 180; // 3 minutes in seconds
-
-  @override
-  void initState() {
-    super.initState();
-    // Check for "Auto Topup" instead of "processing"
-    if (widget.orderStatus == "processing") {
-      _startCountdown();
-    }
-  }
-
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingTime > 0) {
-        setState(() {
-          _remainingTime--;
-        });
-      } else {
-        _timer.cancel();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
-    super.dispose();
-  }
-
-  String get _formattedTime {
-    int minutes = _remainingTime ~/ 60;
-    int seconds = _remainingTime % 60;
-    return "$minutes:${seconds.toString().padLeft(2, '0')}";
-  }
+  const ThankYouScreen({
+    super.key,
+    required this.orderID,
+    required this.date,
+    required this.total,
+    required this.playerID,
+    required this.orderStatus,
+    required this.product,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Initialize the controller
+    final ThankYouController controller = Get.put(ThankYouController());
+
+    // Start the countdown if orderStatus is "processing"
+    if (orderStatus == "processing") {
+      controller.startCountdown(orderID);
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -77,7 +43,7 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
         iconTheme: const IconThemeData(color: AppColors.white),
         elevation: 0,
       ),
-      backgroundColor: Colors.white, // Reuse background color
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -85,12 +51,9 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
           children: [
             const SizedBox(height: 20),
             _buildThankYouIcon(),
-            // const SizedBox(height: 20),
-            // _buildThankYouMessage(),
             const SizedBox(height: 10),
-            // Show countdown only for "Auto Topup"
-            if (widget.orderStatus == "processing") _buildCountdownTimer(),
-            _buildOrderSummary(),
+            if (orderStatus == "processing") _buildCountdownTimer(controller),
+            _buildOrderSummary(controller),
             const Spacer(),
             _buildContinueShoppingButton(context),
           ],
@@ -107,64 +70,44 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
     );
   }
 
-  Widget _buildThankYouMessage() {
-    return Column(
-      children: [
-        Text(
-          'Thank You!',
-          style: AppTextStyles.bodyTextLarge.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.primaryColor,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Your order has been placed successfully.',
-          style: AppTextStyles.bodyTextSmall.copyWith(color: AppColors.grey),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOrderSummary() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey[300]!,
-            blurRadius: 5,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Order Summary',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.primaryColor,
+  Widget _buildOrderSummary(ThankYouController controller) {
+    return  Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[300]!,
+              blurRadius: 5,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const SizedBox(height: 10),
-          _buildOrderDetailsRow('Order ID:', '${widget.orderID} '),
-          const SizedBox(height: 5),
-          _buildOrderDetailsRow('Player Id:', widget.playerID),
-          const SizedBox(height: 5),
-          _buildOrderDetailsRow('Product:', '${widget.product} '),
-          const SizedBox(height: 5),
-          _buildOrderDetailsRow('Total:', '${widget.total} '),
-          const SizedBox(height: 5),
-          _buildOrderDetailsRow('Date:', widget.date),
-        ],
-      ),
-    );
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Order Summary',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildOrderDetailsRow('Order ID:', '${orderID} '),
+            const SizedBox(height: 5),
+            _buildOrderDetailsRow('Player Id:', playerID),
+            const SizedBox(height: 5),
+            _buildOrderDetailsRow('Product:', '${product} '),
+            const SizedBox(height: 5),
+            _buildOrderDetailsRow('Total:', '${total} '),
+            const SizedBox(height: 5),
+            _buildOrderDetailsRow('Date:', date),
+          ],
+        ),
+      );
   }
 
   Widget _buildOrderDetailsRow(String title, String value) {
@@ -208,15 +151,32 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
     );
   }
 
-  Widget _buildCountdownTimer() {
-    return _formattedTime == "0:00"
-        ? const Padding(
-          padding: EdgeInsets.only(bottom: 18.0,),
-          child: Text(
-              "data",
-              style: AppTextStyles.bodyTextMedium,
+  Widget _buildCountdownTimer(ThankYouController controller) {
+    return Obx(() => controller.remainingTime.value == 0 ||
+            controller.orderStatus.value == true
+        ? Padding(
+            padding: const EdgeInsets.only(bottom: 18.0),
+            child: Column(
+              children: [
+                Text(
+                  controller.orderStatus.value == true
+                      ? 'অভিনন্দন!'
+                      : "আপনার অর্ডার রিসিভ হয়েছে",
+                  style: AppTextStyles.bodyTextMedium,
+                ),
+                Card(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15.0, vertical: 10),
+                    child: Text(controller.orderStatus.value == true
+                        ? "আমরা আনন্দের সাথে জানাচ্ছি যে আপনার ডায়মন্ড ডেলিভারি সম্পূর্ণ হয়েছে। আশা করছি, আপনি আমাদের সেবায় সন্তুষ্ট। \nআপনার যদি কোনো প্রশ্ন থাকে বা ভবিষ্যতে আরও কোনো সহায়তার প্রয়োজন হয়, আমাদের সাথে যোগাযোগ করতে দ্বিধা করবেন না।"
+                        : 'আপনারা আপনার অর্ডার পেয়েছি ৫ থেকে ১০ মিনিটের মধ্যই আপনার অর্ডার ডেলিভারি দেওয়া হবে'),
+                  ),
+                )
+              ],
             ),
-        )
+          )
         : Container(
             height: 220,
             width: double.infinity,
@@ -242,16 +202,16 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),
                   child: Text(
-                    _formattedTime,
+                    "${controller.remainingTime.value ~/ 60}:${(controller.remainingTime.value % 60).toString().padLeft(2, '0')}",
                     style: const TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primaryColor,
+                      color: Colors.orange,
                     ),
                   ),
                 ),
               ],
             ),
-          );
+          ));
   }
 }
