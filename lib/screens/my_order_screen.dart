@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:top_up_bd/screens/login_screen.dart';
 
 import '../controller/order_contrroller.dart';
 import '../utils/AppColors.dart';
@@ -16,7 +17,7 @@ class MyOrdersScreen extends StatelessWidget {
     return Scaffold(
       appBar: _buildAppBar(),
       backgroundColor: AppColors.backgroundColor,
-      body: Obx(() => orderController.isLoading.value
+      body: Obx(() => orderController.userID.value.isEmpty ? const LoginScreen() : orderController.isLoading.value
           ? const Center(child: LoadingAnimation())
           : _buildOrderList(orderController)),
     );
@@ -53,6 +54,7 @@ class MyOrdersScreen extends StatelessWidget {
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -83,23 +85,6 @@ class MyOrdersScreen extends StatelessWidget {
               label: 'Amount:',
               value: '${order['amount']} BDT',
             ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle view order details
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text('View Details', style: AppTextStyles.buttonText),
-              ),
-            )
           ],
         ),
       ),

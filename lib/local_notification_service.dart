@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:top_up_bd/utils/AppColors.dart';
+import 'main.dart';
 
 
 class LocalNotificationService {
@@ -18,7 +18,7 @@ class LocalNotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
         if (response.payload != null) {
-          _showNotificationDialog(context, response.payload!);
+          showNotificationDialog(context, response.payload!);
         }
       },
     );
@@ -46,37 +46,5 @@ class LocalNotificationService {
     } catch (e) {
       print(e);
     }
-  }
-
-  static void _showNotificationDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.primaryColor,
-          title: const Center(
-              child: Text(
-                "Notification",
-                style: TextStyle(color: Colors.white),
-              )),
-          content: Text(
-            message,
-            style: const TextStyle(color: Colors.white),
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text(
-                "OK",
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 }

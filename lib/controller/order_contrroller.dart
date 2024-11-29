@@ -1,13 +1,20 @@
 import 'package:get/get.dart';
+import 'package:top_up_bd/SharedPreferencesInstance.dart';
 
 class OrderController extends GetxController {
   var isLoading = true.obs; // To track the loading state
   var orders = <Map<String, dynamic>>[].obs; // To store fetched orders
+  RxString userID = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchOrders(); // Fetch orders when the controller is initialized
+    load();
+  }
+
+  load()async{
+   userID.value = await  SharedPreferencesInstance.sharedPreferencesGet("userID") ?? '';
   }
 
   // Method to fetch orders (you can replace this with your API call)

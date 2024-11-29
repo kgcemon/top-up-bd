@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:get/get_common/get_reset.dart';
+import 'package:get/get_core/get_core.dart';
 import '../utils/AppColors.dart';
 
 
@@ -137,7 +138,7 @@ class RegisterScreen extends StatelessWidget {
         ),
         GestureDetector(
           onTap: () {
-            // Handle login navigation
+            Get.back();
           },
           child: Text(
             'Login',

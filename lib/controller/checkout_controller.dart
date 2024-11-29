@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:top_up_bd/SharedPreferencesInstance.dart';
 import 'package:top_up_bd/data/api_urls.dart';
 import 'package:top_up_bd/screens/thank_you_screen.dart';
 import '../data/models/payment_model.dart';
@@ -47,7 +48,7 @@ class CheckOutController extends GetxController {
       Get.snackbar('Error', 'Player ID cannot be empty');
       return;
     }
-
+    var token = await SharedPreferencesInstance.sharedPreferencesGet("token");
     // Show loading spinner
     isPlacingOrder(true);
     try {
@@ -67,7 +68,7 @@ class CheckOutController extends GetxController {
         "userdata": userdata,
         "itemtitle": itemtitle,
         "total": total.replaceAll("৳", ""),
-        "token": "token",
+        "token": token,
       };
 
       // Send POST request
