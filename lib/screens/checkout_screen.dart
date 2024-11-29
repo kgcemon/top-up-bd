@@ -114,10 +114,12 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Product: ${widget.productName}',
-                    style: AppTextStyles.bodyTextSmall.copyWith(
-                      color: AppColors.primaryColor,
+                  FittedBox(
+                    child: Text(
+                      widget.productName,
+                      style: AppTextStyles.bodyTextSmall.copyWith(
+                        color: AppColors.primaryColor,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 5),
@@ -152,7 +154,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                 children: [
                   const Text(
                     'কিসে সেন্ড মানি করবেন সিলেক্ট করুন?',
-                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                   const SizedBox(height: 10),
                   GetBuilder<CheckOutController>(
@@ -255,7 +257,11 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                     ),
                     keyboardType: TextInputType.phone,
                     validator: (value) {
-                      if (value == null || value.isEmpty || value.length < 11 || value.length > 15) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.length < 11 ||
+                          value.length > 15 ||
+                          !value.contains("01")) {
                         return 'Please enter your number';
                       }
                       return null;
@@ -290,7 +296,10 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                       label: const Text("Trx ID"),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty || value.length < 8 || value.length > 12) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.length < 8 ||
+                          value.length > 12) {
                         return 'Please enter the transaction ID';
                       }
                       return null;

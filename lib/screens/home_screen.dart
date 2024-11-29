@@ -315,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (value == true) {
                       Get.to(() => CheckOutScreen(
                           prices: price,
-                          productName: products,
+                          productName: "${homeController.catName.value} $products",
                         playerIDname: homeController.playerID.value,
                         playerID: uidController.text,
                         productID: '',

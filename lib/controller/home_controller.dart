@@ -12,6 +12,7 @@ class HomeController extends GetxController {
   int selectedProductIndex = -1;
   RxString homeImage = ''.obs;
   RxString playerID = ''.obs;
+  RxString catName = ''.obs;
 
   // Function to fetch products from the API
   void fetchProducts() async {
@@ -25,6 +26,7 @@ class HomeController extends GetxController {
         if (kDebugMode) {
           print(data);
         }
+        catName.value = data['data']['category']['catagory_name'];
         products.value = data['data']['products'];
       } else {
         Get.snackbar('Error', 'Failed to load products');

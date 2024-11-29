@@ -52,7 +52,9 @@ class ThankYouScreen extends StatelessWidget {
             const SizedBox(height: 20),
             _buildThankYouIcon(),
             const SizedBox(height: 10),
-            if (orderStatus == "processing") _buildCountdownTimer(controller),
+            if (orderStatus == "processing" ||
+                orderStatus == "Payment Verified")
+              _buildCountdownTimer(controller),
             _buildOrderSummary(controller),
             const Spacer(),
             _buildContinueShoppingButton(context),
@@ -71,43 +73,43 @@ class ThankYouScreen extends StatelessWidget {
   }
 
   Widget _buildOrderSummary(ThankYouController controller) {
-    return  Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[300]!,
-              blurRadius: 5,
-              spreadRadius: 1,
-              offset: const Offset(0, 2),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[300]!,
+            blurRadius: 5,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Order Summary',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryColor,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Order Summary',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primaryColor,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildOrderDetailsRow('Order ID:', '${orderID} '),
-            const SizedBox(height: 5),
-            _buildOrderDetailsRow('Player Id:', playerID),
-            const SizedBox(height: 5),
-            _buildOrderDetailsRow('Product:', '${product} '),
-            const SizedBox(height: 5),
-            _buildOrderDetailsRow('Total:', '${total} '),
-            const SizedBox(height: 5),
-            _buildOrderDetailsRow('Date:', date),
-          ],
-        ),
-      );
+          ),
+          const SizedBox(height: 10),
+          _buildOrderDetailsRow('Order ID:', '${orderID} '),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('Player Id:', playerID),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('Product:', '${product} '),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('Total:', '${total} '),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('Date:', date),
+        ],
+      ),
+    );
   }
 
   Widget _buildOrderDetailsRow(String title, String value) {
@@ -153,7 +155,7 @@ class ThankYouScreen extends StatelessWidget {
 
   Widget _buildCountdownTimer(ThankYouController controller) {
     return Obx(() => controller.remainingTime.value == 0 ||
-            controller.orderStatus.value == true
+            controller.orderStatus.value == true || orderStatus == "Payment Verified"
         ? Padding(
             padding: const EdgeInsets.only(bottom: 18.0),
             child: Column(
@@ -169,9 +171,11 @@ class ThankYouScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 15.0, vertical: 10),
-                    child: Text(controller.orderStatus.value == true
-                        ? "আমরা আনন্দের সাথে জানাচ্ছি যে আপনার ডায়মন্ড ডেলিভারি সম্পূর্ণ হয়েছে। আশা করছি, আপনি আমাদের সেবায় সন্তুষ্ট। \nআপনার যদি কোনো প্রশ্ন থাকে বা ভবিষ্যতে আরও কোনো সহায়তার প্রয়োজন হয়, আমাদের সাথে যোগাযোগ করতে দ্বিধা করবেন না।"
-                        : 'আপনারা আপনার অর্ডার পেয়েছি ৫ থেকে ১০ মিনিটের মধ্যই আপনার অর্ডার ডেলিভারি দেওয়া হবে'),
+                    child: Text(orderStatus == "Payment Verified"
+                        ? "আপনার পেমেন্ট গ্রহণ করা হয়েছে। অনুগ্রহ করে ৫-১০ মিনিট অপেক্ষা করুন, আপনার অর্ডার সম্পূর্ণ করতে।"
+                        : controller.orderStatus.value == true
+                            ? "আমরা আনন্দের সাথে জানাচ্ছি যে আপনার ডায়মন্ড ডেলিভারি সম্পূর্ণ হয়েছে। আশা করছি, আপনি আমাদের সেবায় সন্তুষ্ট। \nআপনার যদি কোনো প্রশ্ন থাকে বা ভবিষ্যতে আরও কোনো সহায়তার প্রয়োজন হয়, আমাদের সাথে যোগাযোগ করতে দ্বিধা করবেন না।"
+                            : 'আপনারা আপনার অর্ডার পেয়েছি ৫ থেকে ১০ মিনিটের মধ্যই আপনার অর্ডার ডেলিভারি দেওয়া হবে'),
                   ),
                 )
               ],
