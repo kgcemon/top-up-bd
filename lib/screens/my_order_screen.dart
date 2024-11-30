@@ -1,25 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:top_up_bd/screens/login_screen.dart';
-
+import 'package:top_up_bd/data/models/order_model.dart';
+import 'package:top_up_bd/screens/auth/login_screen.dart';
 import '../controller/order_contrroller.dart';
 import '../utils/AppColors.dart';
 import '../widget/loading_animation.dart';
 
-
-class MyOrdersScreen extends StatelessWidget {
+class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final OrderController orderController = Get.put(OrderController());
+  State<MyOrdersScreen> createState() => _MyOrdersScreenState();
+}
 
+class _MyOrdersScreenState extends State<MyOrdersScreen> {
+  final OrderController orderController = Get.put(OrderController());
+
+  @override
+  void initState() {
+    super.initState();
+    orderController.showProfileOrder();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
       backgroundColor: AppColors.backgroundColor,
-      body: Obx(() => orderController.userID.value.isEmpty ? const LoginScreen() : orderController.isLoading.value
-          ? const Center(child: LoadingAnimation())
-          : _buildOrderList(orderController)),
+      body: Obx(() => orderController.userID.value.isEmpty
+          ? LoginScreen()
+          : orderController.isLoading.value
+              ? const Center(child: LoadingAnimation())
+              : _buildOrderList(orderController)),
     );
   }
 
@@ -52,7 +64,7 @@ class MyOrdersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderCard(Map<String, dynamic> order) {
+  Widget _buildOrderCard(OrderModel order) {
     return Card(
       color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
@@ -67,23 +79,33 @@ class MyOrdersScreen extends StatelessWidget {
           children: [
             _buildOrderRow(
               label: 'Order No:',
-              value: order['orderNumber'].toString(),
+              value: order.id,
+              isBold: true,
             ),
             const SizedBox(height: 8),
             _buildOrderRow(
-              label: 'Date:',
-              value: order['date'],
+              label: 'Product:',
+              value: order.itemtitle,
+              isBold: false,
+            ),
+            const SizedBox(height: 8),
+            _buildOrderRow(
+              label: 'Player ID:',
+              value: order.userdata,
+              isBold: false,
             ),
             const SizedBox(height: 8),
             _buildOrderRow(
               label: 'Status:',
-              value: order['status'],
-              statusColor: _getStatusColor(order['status']),
+              value: order.status,
+              statusColor: _getStatusColor(order.status),
+              isBold: false,
             ),
             const SizedBox(height: 8),
             _buildOrderRow(
               label: 'Amount:',
-              value: '${order['amount']} BDT',
+              value: '${order.total} BDT',
+              isBold: true,
             ),
           ],
         ),
@@ -94,30 +116,31 @@ class MyOrdersScreen extends StatelessWidget {
   Widget _buildOrderRow({
     required String label,
     required String value,
+    required bool isBold,
     Color statusColor = AppColors.textColor,
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: AppTextStyles.bodyTextSmall),
-        Text(
-          value,
-          style: AppTextStyles.bodyTextSmall.copyWith(color: statusColor),
-        ),
+        Text(value,
+            style: TextStyle(
+                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                color: statusColor)),
       ],
     );
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Pending':
+      case 'processing' || 'Payment Verified':
         return Colors.orange;
-      case 'Completed':
+      case 'Completed' || 'Auto Completed':
         return Colors.green;
-      case 'Cancelled':
+      case 'পেমেন্ট না করায় ডিলিট করা হয়েছে':
         return Colors.red;
       default:
-        return AppColors.textColor;
+        return Colors.red;
     }
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_common/get_reset.dart';
 import 'package:get/get_core/get_core.dart';
-import '../utils/AppColors.dart';
+import '../../utils/AppColors.dart';
 
 
 class RegisterScreen extends StatelessWidget {

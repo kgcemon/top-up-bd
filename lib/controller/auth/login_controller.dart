@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:top_up_bd/controller/order_contrroller.dart';
 import 'dart:convert';  // Moved jsonDecode here for clarity
-import '../SharedPreferencesInstance.dart';
-import '../data/api_urls.dart';
+import '../../SharedPreferencesInstance.dart';
+import '../../data/api_urls.dart';
 
 class LoginController extends GetxController {
   final RxBool loading = false.obs;  // Keep loading reactive
@@ -32,9 +32,12 @@ class LoginController extends GetxController {
         if (body['status'] == 'success') {
           final Map<String, dynamic> userData = body['user_data'];
           await SharedPreferencesInstance.sharedPreferencesSet('userID', userData['id']);
+          await SharedPreferencesInstance.sharedPreferencesSet('username', userData['username']);
+          await SharedPreferencesInstance.sharedPreferencesSet('phonenumber', userData['phonenumber']);
           accountResult.value = body;
           Get.put(OrderController()).userID.value = userData['id'];
-          Get.snackbar('Login Failed', body['message']);
+          Get.put(OrderController()).showProfileOrder();
+          Get.snackbar('Success', body['message']);
         } else {
           Get.snackbar(backgroundColor: Colors.white,'Login Failed', body['message']);  // Display error message if login fails
         }

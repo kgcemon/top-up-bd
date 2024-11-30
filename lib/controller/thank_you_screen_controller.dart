@@ -6,11 +6,11 @@ import 'package:top_up_bd/data/api_urls.dart';
 
 class ThankYouController extends GetxController {
   var remainingTime = 180.obs; // Observable for time remaining
-  Timer? _timer;
+  Timer? cowntimer;
   RxBool orderStatus = false.obs;
 
   void startCountdown(String orderID) {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    cowntimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingTime > 0) {
         remainingTime.value--;
         print(remainingTime.value);
@@ -18,13 +18,13 @@ class ThankYouController extends GetxController {
           recheckOrder(orderId: orderID).then(
             (value) {
               if (value) {
-                _timer?.cancel();
+                cowntimer?.cancel();
               }
             },
           );
         }
       } else {
-        _timer?.cancel();
+        cowntimer?.cancel();
       }
     });
   }
@@ -36,9 +36,11 @@ class ThankYouController extends GetxController {
       var data = jsonDecode(response.body);
       if (data['status'] == 'success' &&
           data['order_status'] == 'Auto Completed') {
+        cowntimer?.cancel();
         orderStatus.value = true;
         return true;
       } else if (data['order_status'] == 'Complete') {
+        cowntimer?.cancel();
         orderStatus.value = true;
         return true;
       } else {
@@ -52,7 +54,7 @@ class ThankYouController extends GetxController {
 
   @override
   void onClose() {
-    _timer?.cancel(); // Cancel timer when controller is disposed
+    cowntimer?.cancel(); // Cancel timer when controller is disposed
     super.onClose();
   }
 }

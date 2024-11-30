@@ -267,7 +267,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   // "Trx ID" field with validation
                   TextFormField(
                     controller: trxIDController,
