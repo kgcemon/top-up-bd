@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:top_up_bd/screens/checkout_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controller/home_controller.dart';
 import '../local_notification_service.dart';
 import '../utils/AppColors.dart';
@@ -60,17 +61,17 @@ class _HomeScreenState extends State<HomeScreen> {
       elevation: 0,
       iconTheme: const IconThemeData(color: AppColors.white),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_none),
+        TextButton.icon(
+          icon: const Icon(
+            Icons.headphones,
+            color: Colors.white,
+          ),
           onPressed: () {
-            // Handle notifications
-          },
+            launchUrl(Uri.parse("tel:+8801828861788"));
+          }, label: const Text(
+          "Help Center",
+          style: TextStyle(color: Colors.white),
         ),
-        IconButton(
-          icon: const Icon(Icons.account_circle),
-          onPressed: () {
-            // Handle profile
-          },
         ),
       ],
     );
@@ -174,7 +175,10 @@ class _HomeScreenState extends State<HomeScreen> {
             child: InkWell(
               onTap: () {
                 homeController.selectProduct(index);
-                _showPlayerIDDialog(context, price: "${product['price']}৳", products: "${product['name']}", productsID: "${product['id']}");
+                _showPlayerIDDialog(context,
+                    price: "${product['price']}৳",
+                    products: "${product['name']}",
+                    productsID: "${product['id']}");
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -208,7 +212,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showPlayerIDDialog(BuildContext context, {required String price, required products, required String productsID}) {
+  void _showPlayerIDDialog(BuildContext context,
+      {required String price, required products, required String productsID}) {
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -217,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-             Text(
+            Text(
               "$products ",
               style: const TextStyle(
                 fontSize: 18,
@@ -303,8 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ElevatedButton(
             onPressed: () {
               homeController.playerIsLoading.value = false;
-              String input =
-                  uidController.text;
+              String input = uidController.text;
               bool _isInt = int.tryParse(
                       input.removeAllWhitespace.trim().replaceAll("-", "")) ==
                   null; // will be true if it's a valid integer, false otherwise
@@ -317,17 +321,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 homeController
                     .playerIdCheck(
                         uid: uidController.text.removeAllWhitespace
-                            .replaceAll("-", "").trim())
+                            .replaceAll("-", "")
+                            .trim())
                     .then(
                   (value) {
                     if (value == true) {
                       Get.to(() => CheckOutScreen(
-                          prices: price,
-                          productName: "${homeController.catName.value} $products",
-                        playerIDname: homeController.playerID.value,
-                        playerID: uidController.text,
-                        productID: '',
-                      ));
+                            prices: price,
+                            productName:
+                                "${homeController.catName.value} $products",
+                            playerIDname: homeController.playerID.value,
+                            playerID: uidController.text,
+                            productID: '',
+                          ));
                     } else {
                       errorMessage.value = homeController.playerID.value;
                     }

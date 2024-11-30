@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:top_up_bd/data/models/order_model.dart';
 import 'package:top_up_bd/screens/auth/login_screen.dart';
-import '../controller/order_contrroller.dart';
-import '../utils/AppColors.dart';
-import '../widget/loading_animation.dart';
+import '../../controller/auth/order_contrroller.dart';
+import '../../utils/AppColors.dart';
+import '../../widget/loading_animation.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({super.key});
@@ -37,6 +37,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
+      centerTitle: true,
       title: const Text('My Orders', style: AppTextStyles.appBarTitle),
       backgroundColor: AppColors.primaryColor,
       elevation: 0,

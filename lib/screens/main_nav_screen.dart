@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:top_up_bd/screens/home_screen.dart';
-import 'package:top_up_bd/screens/profile_screen.dart';
+import 'package:top_up_bd/screens/auth/profile_screen.dart';
 import '../controller/home_controller.dart';
 import '../utils/AppColors.dart';
-import 'my_order_screen.dart';
+import 'auth/my_order_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});

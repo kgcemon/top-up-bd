@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:top_up_bd/controller/order_contrroller.dart';
+import 'package:top_up_bd/controller/auth/order_contrroller.dart';
 import 'dart:convert';  // Moved jsonDecode here for clarity
 import '../../SharedPreferencesInstance.dart';
 import '../../data/api_urls.dart';
@@ -37,6 +37,7 @@ class LoginController extends GetxController {
           accountResult.value = body;
           Get.put(OrderController()).userID.value = userData['id'];
           Get.put(OrderController()).showProfileOrder();
+          Get.put(OrderController()).load();
           Get.snackbar('Success', body['message']);
         } else {
           Get.snackbar(backgroundColor: Colors.white,'Login Failed', body['message']);  // Display error message if login fails
