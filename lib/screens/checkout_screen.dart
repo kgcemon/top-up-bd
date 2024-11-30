@@ -34,6 +34,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   @override
   void initState() {
     checkOutController.loadPayment();
+    checkOutController.load();
     super.initState();
   }
 

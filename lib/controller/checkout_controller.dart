@@ -12,14 +12,23 @@ class CheckOutController extends GetxController {
   var totalAmount = 0.obs;
   var paymentMethods = <PaymentModel>[].obs;
   var selectedPaymentMethod = 0.obs;
+  RxString? username = ''.obs;
+  RxString? userId = ''.obs;
   final formKey = GlobalKey<FormState>();
 
   RxInt paymentIndex = 0.obs;
 
+  void load()async{
+    userId?.value = await SharedPreferencesInstance.sharedPreferencesGet("userID") ?? '55545';
+    username?.value = await SharedPreferencesInstance.sharedPreferencesGet("username") ?? 'Guest From New App';
+  }
+
+
+  // Load payment methods from the API
   void loadPayment() async {
     if (paymentMethods.isEmpty) {
-      var response = await http
-          .get(Uri.parse("${ApiUrls.mainUrls}/paymentapi.php?api_key=emon"));
+      var response = await http.get(
+          Uri.parse("${ApiUrls.mainUrls}/paymentapi.php?api_key=emon"));
       if (response.statusCode == 200) {
         List data = jsonDecode(response.body);
         for (var element in data) {
@@ -27,15 +36,18 @@ class CheckOutController extends GetxController {
               .add(PaymentModel.fromJson(element as Map<String, dynamic>));
         }
         update();
+      } else {
+        Get.snackbar('Error', 'Failed to load payment methods');
       }
     }
   }
 
-  // Method to select payment method
+  // Select a payment method
   void selectPaymentMethod(int index) {
     selectedPaymentMethod.value = index;
   }
 
+  // Method to place the order
   void placeOrder({
     required String productId,
     required String bkash_number,
@@ -48,21 +60,22 @@ class CheckOutController extends GetxController {
       Get.snackbar('Error', 'Player ID cannot be empty');
       return;
     }
+
     var token = await SharedPreferencesInstance.sharedPreferencesGet("token");
+
     // Show loading spinner
     isPlacingOrder(true);
     try {
       // API URL
-      var url =
-          Uri.parse("${ApiUrls.mainUrls}/topupbd/add_order.php?api_key=emon");
+      var url = Uri.parse("${ApiUrls.mainUrls}/topupbd/add_order.php?api_key=emon");
 
       // Prepare request body
       var requestBody = {
         "product_id": productId,
-        "username": "emon",
-        "number": "018255555444",
+        "username": username?.value,
+        //"number": await SharedPreferencesInstance.sharedPreferencesGet("phonenumber") ?? '',
         "status": 'Processing',
-        "user_id": "555",
+        "user_id": userId?.value,
         "bkash_number": bkash_number,
         "trxid": trxid,
         "userdata": userdata,
@@ -75,72 +88,54 @@ class CheckOutController extends GetxController {
       var response = await http.post(url, body: requestBody);
 
       print(response.body);
-      print(response.statusCode);
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
-
-        // Check if the response is a List
-        if (responseData is List) {
-          // Access the first element of the list
+        if (responseData is List && responseData.isNotEmpty) {
           var responseMap = responseData[0];
-
-          // Debugging: Print the map
-          print("Response Map: $responseMap");
-
-          bool trxIDAlreadyUsed = responseMap["status"]
-              .toString()
-              .contains("Transaction ID already used. Please try again");
-
-          if (trxIDAlreadyUsed) {
+          // Check if the transaction ID has already been used
+          if (responseMap["status"].toString().contains("Transaction ID already used")) {
             Get.snackbar(
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-                icon: const Icon(
-                  Icons.cancel,
-                  color: Colors.white,
-                ),
-                'Error',
-                responseMap["status"]);
+              'Error',
+              responseMap["status"],
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              icon: const Icon(Icons.cancel, color: Colors.white),
+            );
+            username?.value = '';
+            userId?.value = '';
           } else if (responseMap['status'] == 'sucess') {
-            print("Order placed: $responseMap");
-
-            // Show success message
+            // Success: Order placed
             Get.snackbar('Success', 'Order placed successfully!');
-
-            // Navigate to thank you screen
             Get.offAll(() => ThankYouScreen(
-                  orderID: responseMap["id"],
-                  date: responseMap["datetime"],
-                  total: total,
-                  playerID: userdata,
-                  product: itemtitle,
-                  orderStatus: responseMap["order"],
-                ));
+              orderID: responseMap["id"],
+              date: responseMap["datetime"],
+              total: total,
+              playerID: userdata,
+              product: itemtitle,
+              orderStatus: responseMap["order"],
+            ));
           } else {
-            String errorMessage =
-                responseMap['message']?.toString() ?? 'Unknown error';
+            // Failure: Show error message
+            String errorMessage = responseMap['message']?.toString() ?? 'Unknown error';
             Get.snackbar('Error', 'Failed to place order: $errorMessage');
           }
         } else {
-          print("Unexpected response format: Not a List");
-          Get.snackbar(
-              'Error', 'Failed to place order. Invalid response format.');
+          Get.snackbar('Error', 'Invalid response format.');
         }
       } else {
-        print("Error: Received status code ${response.statusCode}");
         Get.snackbar('Error', 'Failed to place order. Please try again later.');
       }
     } catch (e) {
-      print("Exception: $e");
-      Get.snackbar('Error',
-          'An error occurred while placing the order. Please check your connection.');
+      // Handle any exceptions
+      Get.snackbar('Error', 'An error occurred: $e');
     } finally {
-      // Hide loading spinner
+      // Hide the loading spinner
       isPlacingOrder(false);
     }
   }
 
+  // Handle payment method selection
   void paymentMethodSelect(int index) {
     paymentIndex.value = index;
   }

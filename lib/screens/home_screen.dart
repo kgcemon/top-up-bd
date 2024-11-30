@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           : Colors.black,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 3),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(

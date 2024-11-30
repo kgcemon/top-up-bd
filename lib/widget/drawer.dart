@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../controller/auth/order_contrroller.dart';
 import '../utils/AppColors.dart';
 
 
-class MyAppDrawer extends StatelessWidget {
+class MyAppDrawer extends StatefulWidget {
   const MyAppDrawer({super.key});
+
+  @override
+  State<MyAppDrawer> createState() => _MyAppDrawerState();
+}
+
+class _MyAppDrawerState extends State<MyAppDrawer> {
+
+  final OrderController orderController = Get.put(OrderController());
+
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +24,7 @@ class MyAppDrawer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildDrawerHeader(),
+          _buildDrawerHeader(orderController),
           _buildDrawerItem(
             icon: Icons.home,
             title: 'Home',
@@ -60,17 +71,17 @@ class MyAppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerHeader() {
-    return UserAccountsDrawerHeader(
-      decoration: BoxDecoration(
+  Widget _buildDrawerHeader(OrderController controller) {
+    return Obx(() => UserAccountsDrawerHeader(
+      decoration: const BoxDecoration(
         color: AppColors.primaryColor,
       ),
       accountName: Text(
-        'John Doe',
-        style: TextStyle(fontSize: 14),
+        controller.userName.isEmpty ? "Login Fast" : controller.userName.value,
+        style: const TextStyle(fontSize: 14),
       ),
       accountEmail: Text(
-        'john.doe@example.com',
+        controller.userPhone.isEmpty ? "" : controller.userPhone.value,
         style: AppTextStyles.bodyTextSmall.copyWith(color: AppColors.white),
       ),
       currentAccountPicture: CircleAvatar(
@@ -80,7 +91,7 @@ class MyAppDrawer extends StatelessWidget {
           style: AppTextStyles.bodyTextLarge.copyWith(color: AppColors.black),
         ),
       ),
-    );
+    ),);
   }
 
   Widget _buildDrawerItem({

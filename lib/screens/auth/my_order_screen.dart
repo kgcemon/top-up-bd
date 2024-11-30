@@ -124,7 +124,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: AppTextStyles.bodyTextSmall),
-        Text(value,
+        Text(value.replaceAll("Auto Topup", "Delivery Running"),
             style: TextStyle(
                 fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
                 color: statusColor)),
@@ -138,8 +138,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         return Colors.orange;
       case 'Completed' || 'Auto Completed':
         return Colors.green;
-      case 'পেমেন্ট না করায় ডিলিট করা হয়েছে':
-        return Colors.red;
+      case 'Auto Topup':
+        return Colors.lightBlue;
       default:
         return Colors.red;
     }

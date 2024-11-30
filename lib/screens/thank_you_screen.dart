@@ -4,7 +4,7 @@ import 'package:top_up_bd/screens/main_nav_screen.dart';
 import '../controller/thank_you_screen_controller.dart';
 import '../utils/AppColors.dart';
 
-class ThankYouScreen extends StatelessWidget {
+class ThankYouScreen extends StatefulWidget {
   final String orderID;
   final String date;
   final String total;
@@ -23,15 +23,25 @@ class ThankYouScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    // Initialize the controller
-    final ThankYouController controller = Get.put(ThankYouController());
+  State<ThankYouScreen> createState() => _ThankYouScreenState();
+}
 
+class _ThankYouScreenState extends State<ThankYouScreen> {
+  // Initialize the controller
+  final ThankYouController controller = Get.put(ThankYouController());
+
+  @override
+  void initState() {
+    super.initState();
+    controller.waitingForNotification(widget.orderID);
     // Start the countdown if orderStatus is "processing"
-    if (orderStatus == "processing") {
-      controller.startCountdown(orderID);
+    if (widget.orderStatus == "Auto Topup") {
+      controller.startCountdown(widget.orderID);
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -50,10 +60,19 @@ class ThankYouScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            _buildThankYouIcon(),
+            _buildThankYouIcon(controller),
             const SizedBox(height: 10),
-            if (orderStatus == "processing" ||
-                orderStatus == "Payment Verified")
+            Obx(() => controller.orderDelete.value
+                ? const Card(
+                    color: Colors.red,
+                    child: Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: Text(
+                          'পেমেন্ট না করায় আপনার অর্ডার ডিলিট করা হয়েছে দয়া করে ভিডিও দেখে অর্ডার করুন',style: TextStyle(color: Colors.white),),
+                    ))
+                : const Text("")),
+            if (widget.orderStatus == "Auto Topup" ||
+                widget.orderStatus == "Payment Verified")
               _buildCountdownTimer(controller),
             _buildOrderSummary(controller),
             const Spacer(),
@@ -64,12 +83,18 @@ class ThankYouScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildThankYouIcon() {
-    return const Icon(
-      Icons.check_circle_outline,
-      color: AppColors.primaryColor,
-      size: 80,
-    );
+  Widget _buildThankYouIcon(ThankYouController controller) {
+    return Obx(() => controller.orderDelete.value
+        ? const Icon(
+            Icons.cancel,
+            color: Colors.red,
+            size: 80,
+          )
+        : const Icon(
+            Icons.check_circle_outline,
+            color: AppColors.primaryColor,
+            size: 80,
+          ));
   }
 
   Widget _buildOrderSummary(ThankYouController controller) {
@@ -98,15 +123,15 @@ class ThankYouScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          _buildOrderDetailsRow('Order ID:', '${orderID} '),
+          _buildOrderDetailsRow('Order ID:', '${widget.orderID} '),
           const SizedBox(height: 5),
-          _buildOrderDetailsRow('Player Id:', playerID),
+          _buildOrderDetailsRow('Player Id:', widget.playerID),
           const SizedBox(height: 5),
-          _buildOrderDetailsRow('Product:', '${product} '),
+          _buildOrderDetailsRow('Product:', '${widget.product} '),
           const SizedBox(height: 5),
-          _buildOrderDetailsRow('Total:', '${total} '),
+          _buildOrderDetailsRow('Total:', '${widget.total} '),
           const SizedBox(height: 5),
-          _buildOrderDetailsRow('Date:', date),
+          _buildOrderDetailsRow('Date:', widget.date),
         ],
       ),
     );
@@ -155,7 +180,8 @@ class ThankYouScreen extends StatelessWidget {
 
   Widget _buildCountdownTimer(ThankYouController controller) {
     return Obx(() => controller.remainingTime.value == 0 ||
-            controller.orderStatus.value == true || orderStatus == "Payment Verified"
+            controller.orderStatus.value == true ||
+            widget.orderStatus == "Payment Verified"
         ? Padding(
             padding: const EdgeInsets.only(bottom: 18.0),
             child: Column(
@@ -171,51 +197,55 @@ class ThankYouScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 15.0, vertical: 10),
-                    child: Text(orderStatus == "Payment Verified"
+                    child: Text(widget.orderStatus == "Payment Verified"
                         ? "আপনার পেমেন্ট গ্রহণ করা হয়েছে। অনুগ্রহ করে ৫-১০ মিনিট অপেক্ষা করুন, আপনার অর্ডার সম্পূর্ণ করতে।"
                         : controller.orderStatus.value == true
                             ? "আমরা আনন্দের সাথে জানাচ্ছি যে আপনার ডায়মন্ড ডেলিভারি সম্পূর্ণ হয়েছে। আশা করছি, আপনি আমাদের সেবায় সন্তুষ্ট। \nআপনার যদি কোনো প্রশ্ন থাকে বা ভবিষ্যতে আরও কোনো সহায়তার প্রয়োজন হয়, আমাদের সাথে যোগাযোগ করতে দ্বিধা করবেন না।"
-                            : 'আমরা আপনার অর্ডার পেয়েছি আপনি যদি পেমেন্ট কএ থাকেন ৫ থেকে ১০ মিনিটের মধ্যই আপনার অর্ডার ডেলিভারি দেওয়া হবে'),
+                            : controller.orderDelete.value
+                                ? 'আমরা আপনার অর্ডার পেয়েছি আপনি যদি পেমেন্ট করে থাকেন ৫ থেকে ১০ মিনিটের মধ্যই আপনার অর্ডার ডেলিভারি দেওয়া হবে'
+                                : "আমরা আপনার অর্ডার পেয়েছি আপনি যদি পেমেন্ট করে থাকেন ৫ থেকে ১০ মিনিটের মধ্যই আপনার অর্ডার ডেলিভারি দেওয়া হবে"),
                   ),
                 )
               ],
             ),
           )
-        : Container(
-            height: 220,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: AssetImage(
-                  "assets/delivery.gif",
-                ),
-              ),
-            ),
-            child: Column(
-              children: [
-                const Text(
-                  'Auto Topup in Progress...',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.only(left: 15.0),
-                  child: Text(
-                    "${controller.remainingTime.value ~/ 60}:${(controller.remainingTime.value % 60).toString().padLeft(2, '0')}",
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
+        : controller.orderDelete.value == false
+            ? Container(
+                height: 220,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage(
+                      "assets/delivery.gif",
                     ),
                   ),
                 ),
-              ],
-            ),
-          ));
+                child: Column(
+                  children: [
+                    const Text(
+                      'Top Up in Progress...',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: Text(
+                        "${controller.remainingTime.value ~/ 60}:${(controller.remainingTime.value % 60).toString().padLeft(2, '0')}",
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : const Text(''));
   }
 }
