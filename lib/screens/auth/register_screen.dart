@@ -1,65 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_common/get_reset.dart';
-import 'package:get/get_core/get_core.dart';
+import '../../controller/auth/register_screen_controller.dart';
 import '../../utils/AppColors.dart';
-
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final RegisterScreenController controller =
+        Get.put(RegisterScreenController());
+
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Reuse background color
+      backgroundColor: Colors.grey[100],
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 50), // Adds top spacing
-                const Text(
-                  'Create Account',
-                  style: AppTextStyles.bodyTextLarge,  // Reuse large text style
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Sign up to get started',
-                  style: AppTextStyles.bodyTextSmall,  // Reuse small text style
-                ),
-                const SizedBox(height: 40),
-                _buildTextField(
-                  label: 'Name',
-                  hintText: 'Enter your name',
-                  icon: Icons.person_outline,
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(
-                  label: 'Email',
-                  hintText: 'Enter your email',
-                  icon: Icons.email_outlined,
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(
-                  label: 'Password',
-                  hintText: 'Enter your password',
-                  icon: Icons.lock_outline,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(
-                  label: 'Confirm Password',
-                  hintText: 'Re-enter your password',
-                  icon: Icons.lock_outline,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 40),
-                _buildRegisterButton(context),
-                const SizedBox(height: 20),
-                _buildLoginOption(),
-              ],
+            child: Form(
+              key: controller.formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 50),
+                  const Text(
+                    'Create Account',
+                    style: AppTextStyles.bodyTextLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Sign up to get started',
+                    style: AppTextStyles.bodyTextSmall,
+                  ),
+                  const SizedBox(height: 40),
+                  _buildTextField(
+                    controller: controller.nameController,
+                    label: 'Name',
+                    hintText: 'Enter your name',
+                    icon: Icons.person_outline,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                    controller: controller.phoneController,
+                    label: 'Phone Number',
+                    hintText: 'Enter your phone number',
+                    icon: Icons.phone,
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.length < 10 ||
+                          value.length > 14) {
+                        return 'Please enter your phone number';
+                      }
+                      if (!RegExp(r'^\d{10,15}$').hasMatch(value)) {
+                        return 'Enter a valid phone number';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                    controller: controller.passController,
+                    label: 'Password',
+                    hintText: 'Enter your password',
+                    icon: Icons.lock_outline,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _buildTextField(
+                    controller: controller.confirmPassController,
+                    label: 'Confirm Password',
+                    hintText: 'Re-enter your password',
+                    icon: Icons.lock_outline,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != controller.passController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  Obx(() {
+                    return controller.loading.value
+                        ? const Center(child: CircularProgressIndicator())
+                        : _buildRegisterButton(context, controller);
+                  }),
+                  const SizedBox(height: 20),
+                  _buildLoginOption(),
+                ],
+              ),
             ),
           ),
         ),
@@ -68,20 +116,23 @@ class RegisterScreen extends StatelessWidget {
   }
 
   Widget _buildTextField({
+    required TextEditingController controller,
     required String label,
     required String hintText,
     required IconData icon,
     bool obscureText = false,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: AppTextStyles.bodyTextSmall,  // Reuse text style for labels
+          style: AppTextStyles.bodyTextSmall,
         ),
         const SizedBox(height: 8),
-        TextField(
+        TextFormField(
+          controller: controller,
           obscureText: obscureText,
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: AppColors.primaryColor),
@@ -96,30 +147,34 @@ class RegisterScreen extends StatelessWidget {
               borderSide: BorderSide(color: AppColors.primaryColor),
             ),
           ),
+          validator: validator,
         ),
       ],
     );
   }
 
-  Widget _buildRegisterButton(BuildContext context) {
+  Widget _buildRegisterButton(
+      BuildContext context, RegisterScreenController controller) {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          // Handle registration action
+          if (controller.formKey.currentState?.validate() ?? false) {
+            controller.createAccount(context);
+          }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryColor,  // Reuse primary color
+          backgroundColor: AppColors.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
-        child: Text(
+        child: const Text(
           'Register',
           style: TextStyle(
-            color: AppColors.white,  // Reuse white color for text
+            color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),

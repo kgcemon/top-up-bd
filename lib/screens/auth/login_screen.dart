@@ -73,25 +73,8 @@ class LoginScreen extends StatelessWidget {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
 
-                  // Forgot Password
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        // Handle forgot password logic
-                      },
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
 
                   // Login Button
                   Obx(() => _buildLoginButton(
