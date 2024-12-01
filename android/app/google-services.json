@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:368715655730:android:f5b2dadc77726fea5b2a2b",
+        "mobilesdk_app_id": "1:368715655730:android:5673babbc36407825b2a2b",
         "android_client_info": {
-          "package_name": "com.Rohit.Codm.app.top_up_bd"
+          "package_name": "com.Rohit.Codm.app"
         }
       },
       "oauth_client": [

@@ -40,6 +40,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
 Obx _buildBottomNavigationBar(HomeController homeController) {
   return Obx(
         () => BottomNavigationBar(
+          backgroundColor: Colors.white,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:top_up_bd/screens/checkout_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:top_up_bd/screens/help_center_screen.dart';
 import '../controller/home_controller.dart';
 import '../local_notification_service.dart';
 import '../utils/AppColors.dart';
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       LocalNotificationService.initialize(context);
     });
+    checkForUpdate();
     super.initState();
   }
 
@@ -67,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.white,
           ),
           onPressed: () {
-            launchUrl(Uri.parse("tel:+8801828861788"));
+            Get.to(()=> const HelpCenterScreen());
           }, label: const Text(
           "Help Center",
           style: TextStyle(color: Colors.white),
@@ -362,5 +364,28 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+
+  Future<void> checkForUpdate() async {
+    print('checking for Update');
+    InAppUpdate.checkForUpdate().then((info) {
+      setState(() {
+        if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+          print('update available');
+          update();
+        }
+      });
+    }).catchError((e) {
+      print(e.toString());
+    });
+  }
+
+  void update() async {
+    print('Updating');
+    await InAppUpdate.startFlexibleUpdate();
+    InAppUpdate.completeFlexibleUpdate().then((_) {}).catchError((e) {
+      print(e.toString());
+    });
   }
 }

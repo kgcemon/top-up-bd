@@ -30,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     int completedOrdersLength = completedOrders.length;
 
     var canceledOrders = orderController.orders
-        .where((order) => order.status == "পেমেন্ট না করায় ডিলেট করা হয়েছ")
+        .where((order) => order.status == "পেমেন্ট না করায় ডিলেট করা হয়েছে")
         .toList();
     int canceledOrdersLength = canceledOrders.length;
 

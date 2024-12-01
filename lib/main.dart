@@ -26,7 +26,7 @@ Future<void> main() async {
   PushNotifications.init();
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessage);
   runApp( DevicePreview(
-    enabled: false,
+    enabled: true,
     builder: (context) => const MyApp(), // Wrap your app
   ),);
 }

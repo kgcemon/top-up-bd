@@ -54,9 +54,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyA5EORTgfjsyou_vSH1_UI3HYKwv_WDyLA',
-    appId: '1:368715655730:android:f5b2dadc77726fea5b2a2b',
+    appId: '1:368715655730:android:5673babbc36407825b2a2b',
     messagingSenderId: '368715655730',
     projectId: 'topupapps-54efa',
     storageBucket: 'topupapps-54efa.firebasestorage.app',
   );
+
 }

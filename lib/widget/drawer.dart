@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:top_up_bd/utils/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controller/auth/order_contrroller.dart';
+import '../screens/help_center_screen.dart';
 import '../utils/AppColors.dart';
 
 
@@ -27,42 +30,44 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
           _buildDrawerHeader(orderController),
           _buildDrawerItem(
             icon: Icons.home,
-            title: 'Home',
+            title: 'হোম',
             onTap: () {
               // Handle navigation to Home
               Navigator.pop(context);
             },
           ),
           _buildDrawerItem(
-            icon: Icons.shopping_cart,
-            title: 'My Orders',
+            icon: Icons.question_answer,
+            title: 'Help Center',
+            onTap: () {
+              Get.to(()=> const HelpCenterScreen());
+            },
+          ),
+          _buildDrawerItem(
+            icon: Icons.policy,
+            title: 'Privacy Policy',
+            onTap: () async {
+              if (!await launchUrl(Uri.parse("https://codmshopbd.com/privacy-policy.php"))) {
+              throw Exception('Could not launch');
+              }
+              Get.back();
+            },
+          ),
+          _buildDrawerItem(
+            icon: Icons.question_answer,
+            title: 'কিভাবে অর্ডার করবেন',
             onTap: () {
               // Handle navigation to My Orders
               Navigator.pop(context);
             },
           ),
           _buildDrawerItem(
-            icon: Icons.account_circle,
-            title: 'Profile',
-            onTap: () {
-              // Handle navigation to Profile
-              Navigator.pop(context);
-            },
-          ),
-          _buildDrawerItem(
-            icon: Icons.settings,
-            title: 'Settings',
-            onTap: () {
-              // Handle navigation to Settings
-              Navigator.pop(context);
-            },
-          ),
-          const Spacer(),
-          _buildDrawerItem(
-            icon: Icons.logout,
-            title: 'Logout',
-            onTap: () {
-              // Handle logout
+            icon: Icons.branding_watermark_sharp,
+            title: 'Terms & Conditions',
+            onTap: () async {
+              if (!await launchUrl(Uri.parse("https://codmshopbd.com/myapp/termsandconditions.html"))) {
+              throw Exception('Could not launch');
+              }
               Navigator.pop(context);
             },
           ),
@@ -87,7 +92,7 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
       currentAccountPicture: CircleAvatar(
         backgroundColor: Colors.grey[300],
         child: Text(
-          'JD',
+          controller.userName.value.toString()[0],
           style: AppTextStyles.bodyTextLarge.copyWith(color: AppColors.black),
         ),
       ),
@@ -103,7 +108,7 @@ class _MyAppDrawerState extends State<MyAppDrawer> {
       leading: Icon(icon, color: AppColors.primaryColor),
       title: Text(
         title,
-        style: AppTextStyles.bodyTextMedium.copyWith(color: AppColors.black),
+        style: AppTextStyles.bodyTextSmall.copyWith(color: AppColors.black),
       ),
       onTap: onTap,
     );
