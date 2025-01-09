@@ -1,5 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'SharedPreferencesInstance.dart';
+import 'utils/SharedPreferencesInstance.dart';
 import 'local_notification_service.dart';
 
 class PushNotifications {

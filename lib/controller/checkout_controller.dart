@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:top_up_bd/SharedPreferencesInstance.dart';
+import 'package:top_up_bd/utils/SharedPreferencesInstance.dart';
 import 'package:top_up_bd/data/api_urls.dart';
 import 'package:top_up_bd/screens/thank_you_screen.dart';
 import '../data/models/payment_model.dart';
@@ -12,6 +12,7 @@ class CheckOutController extends GetxController {
   var totalAmount = 0.obs;
   var paymentMethods = <PaymentModel>[].obs;
   var selectedPaymentMethod = 0.obs;
+  var selectedPaymentImg = ''.obs;
   RxString? username = ''.obs;
   RxString? userId = ''.obs;
   final formKey = GlobalKey<FormState>();
@@ -35,6 +36,8 @@ class CheckOutController extends GetxController {
           paymentMethods
               .add(PaymentModel.fromJson(element as Map<String, dynamic>));
         }
+        selectedPaymentImg.value =
+        "https://codmshopbd.com/myapp/${paymentMethods[0].img}";
         update();
       } else {
         Get.snackbar('Error', 'Failed to load payment methods');
@@ -114,6 +117,9 @@ class CheckOutController extends GetxController {
               playerID: userdata,
               product: itemtitle,
               orderStatus: responseMap["order"],
+              paymentImg: selectedPaymentImg.value,
+              paymentNumber: bkash_number,
+              trxID: trxid,
             ));
           } else {
             // Failure: Show error message

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:top_up_bd/controller/auth/order_contrroller.dart';
 import 'dart:convert';  // Moved jsonDecode here for clarity
-import '../../SharedPreferencesInstance.dart';
+import '../../utils/SharedPreferencesInstance.dart';
 import '../../data/api_urls.dart';
 
 class LoginController extends GetxController {

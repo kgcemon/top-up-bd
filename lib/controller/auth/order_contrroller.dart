@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:top_up_bd/SharedPreferencesInstance.dart';
+import 'package:top_up_bd/utils/SharedPreferencesInstance.dart';
 import 'package:top_up_bd/data/api_urls.dart';
 import 'package:top_up_bd/data/models/order_model.dart';
 import 'package:http/http.dart' as http;

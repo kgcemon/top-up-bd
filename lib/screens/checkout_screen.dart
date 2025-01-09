@@ -174,8 +174,15 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                               padding: const EdgeInsets.all(5.0),
                               child: Obx(
                                 () => InkWell(
-                                  onTap: () => checkOutController
-                                      .paymentIndex.value = index,
+                                  onTap: () {
+                                    checkOutController.paymentIndex.value =
+                                        index;
+                                    checkOutController
+                                            .selectedPaymentImg.value =
+                                        "https://codmshopbd.com/myapp/${controller.paymentMethods[index].img}";
+                                    print(checkOutController
+                                        .selectedPaymentImg.value);
+                                  },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
@@ -323,12 +330,13 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
               : () {
                   if (_formKey.currentState!.validate()) {
                     controller.placeOrder(
-                        productId: widget.productID,
-                        bkash_number: paymentNumberController.text,
-                        trxid: trxIDController.text,
-                        userdata: widget.playerID,
-                        itemtitle: widget.productName,
-                        total: widget.prices);
+                      productId: widget.productID,
+                      bkash_number: paymentNumberController.text,
+                      trxid: trxIDController.text,
+                      userdata: widget.playerID,
+                      itemtitle: widget.productName,
+                      total: widget.prices,
+                    );
                   }
                 },
           style: ElevatedButton.styleFrom(

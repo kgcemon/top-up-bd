@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:top_up_bd/screens/checkout_screen.dart';
 import 'package:top_up_bd/screens/help_center_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controller/home_controller.dart';
 import '../local_notification_service.dart';
 import '../utils/AppColors.dart';
@@ -65,14 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
       actions: [
         TextButton.icon(
           icon: const Icon(
-            Icons.headphones,
+            Icons.headphones,size: 20,
             color: Colors.white,
           ),
           onPressed: () {
             Get.to(()=> const HelpCenterScreen());
           }, label: const Text(
           "Help Center",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white,fontSize: 10),
         ),
         ),
       ],
@@ -94,10 +95,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Obx(
                     () => homeController.homeImage.value.isEmpty
                         ? const LoadingAnimation()
-                        : Image.network(
-                            homeController.homeImage.value,
-                            fit: BoxFit.cover,
-                          ),
+                        : InkWell(
+                      onTap: () async {
+                        if (!await launchUrl(Uri.parse("https://youtu.be/bjEzsIzLBjA?si=8avK0o5giBuS_gyC"))) {
+                        throw Exception('Could not launch');
+                        }
+                      },
+                          child: Image.network(
+                              homeController.homeImage.value,
+                              fit: BoxFit.cover,
+                            ),
+                        ),
                   ),
                 ),
                 const SizedBox(height: 13),
@@ -288,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               filled: true,
                               fillColor: AppColors.white,
-                              labelText: "Player ID",
+                              labelText: "UID",
                               labelStyle: const TextStyle(
                                 color: AppColors.grey,
                               ),

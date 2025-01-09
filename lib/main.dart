@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:top_up_bd/SharedPreferencesInstance.dart';
+import 'package:top_up_bd/utils/SharedPreferencesInstance.dart';
 import 'package:top_up_bd/screens/main_nav_screen.dart';
 import 'package:top_up_bd/utils/AppColors.dart';
 import 'PushNotifications.dart';

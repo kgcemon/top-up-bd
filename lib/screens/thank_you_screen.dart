@@ -11,6 +11,9 @@ class ThankYouScreen extends StatefulWidget {
   final String playerID;
   final String product;
   final String orderStatus;
+  final String paymentImg;
+  final String paymentNumber;
+  final String trxID;
 
   const ThankYouScreen({
     super.key,
@@ -20,6 +23,9 @@ class ThankYouScreen extends StatefulWidget {
     required this.playerID,
     required this.orderStatus,
     required this.product,
+    required this.paymentImg,
+    required this.paymentNumber,
+    required this.trxID,
   });
 
   @override
@@ -75,6 +81,11 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
                 widget.orderStatus == "Payment Verified")
               _buildCountdownTimer(controller),
             _buildOrderSummary(controller),
+            const SizedBox(height: 10,),
+
+            paymentSumery(),
+
+
             const Spacer(),
             _buildContinueShoppingButton(context),
           ],
@@ -247,5 +258,36 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
                 ),
               )
             : const Text(''));
+  }
+
+  paymentSumery(){
+    return
+    Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[300]!,
+            blurRadius: 5,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 5),
+          Image.network(widget.paymentImg,height: 35,width: 55,),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('Number:', widget.paymentNumber),
+          const SizedBox(height: 5),
+          _buildOrderDetailsRow('TrxID:', '${widget.trxID} '),
+          const SizedBox(height: 5),
+        ],
+      ),
+    );
   }
 }
