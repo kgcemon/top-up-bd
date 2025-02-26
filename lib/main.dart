@@ -1,8 +1,9 @@
-import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:top_up_bd/utils/SharedPreferencesInstance.dart';
 import 'package:top_up_bd/screens/main_nav_screen.dart';
 import 'package:top_up_bd/utils/AppColors.dart';
@@ -19,16 +20,22 @@ Future<void> firebaseBackgroundMessage(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   SharedPreferencesInstance.sharedPreferencesGet("token");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   PushNotifications.init();
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessage);
-  runApp( DevicePreview(
-    enabled: false,
-    builder: (context) => const MyApp(), // Wrap your app
-  ),);
+
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent, // Transparent status bar
+    systemNavigationBarColor: Colors.transparent, // Transparent navigation bar
+    systemNavigationBarIconBrightness: Brightness.dark, // Adjust icon brightness
+    statusBarIconBrightness: Brightness.dark, // Status bar icon brightness
+  ));
+
+  runApp( const MyApp(),);
 }
 
 class MyApp extends StatelessWidget {
@@ -38,8 +45,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return  GetMaterialApp(
       useInheritedMediaQuery: true,
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       home: const MainNavScreen(),

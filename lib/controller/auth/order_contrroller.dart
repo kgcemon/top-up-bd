@@ -6,6 +6,9 @@ import 'package:top_up_bd/data/models/order_model.dart';
 import 'package:http/http.dart' as http;
 
 class OrderController extends GetxController {
+
+  RxString imgUrl = ''.obs;
+
   var isLoading = true.obs; // To track the loading state
   var orders = <OrderModel>[].obs; // To store fetched orders
   RxString userID = ''.obs;
@@ -23,6 +26,7 @@ class OrderController extends GetxController {
    userID.value = await  SharedPreferencesInstance.sharedPreferencesGet("userID") ?? '';
    userName.value = await  SharedPreferencesInstance.sharedPreferencesGet("username") ?? '';
    userPhone.value = await  SharedPreferencesInstance.sharedPreferencesGet("phonenumber") ?? '';
+   imgUrl.value = await  SharedPreferencesInstance.sharedPreferencesGet("img") ?? '';
    print(userPhone.value);
    print(userName.value);
   }

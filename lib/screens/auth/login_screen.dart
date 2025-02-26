@@ -15,6 +15,7 @@ class LoginScreen extends StatelessWidget {
     // Instantiate the LoginController
     final LoginController loginController = Get.put(LoginController());
 
+
     return Scaffold(
       backgroundColor: Colors.grey[100], // Consistent background color
       body: Center(
@@ -91,6 +92,8 @@ class LoginScreen extends StatelessWidget {
 
                   // Sign Up Option
                   _buildSignUpOption(),
+                  const SizedBox(height: 20),
+                  _buildGoogleSignInButton(loginController)
                 ],
               ),
             ),
@@ -193,4 +196,30 @@ class LoginScreen extends StatelessWidget {
       ],
     );
   }
+
+
+  Widget _buildGoogleSignInButton(LoginController loginController) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        onPressed: loginController.googleSignIn,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          side: const BorderSide(color: AppColors.grey),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        icon: Image.network('https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png', height: 24),  // Ensure you add a Google logo in your assets
+        label: const Text(
+          'Sign in with Google',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+}
 }

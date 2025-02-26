@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:top_up_bd/screens/checkout_screen.dart';
-import 'package:top_up_bd/screens/help_center_screen.dart';
+import 'package:top_up_bd/screens/fullnews_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controller/home_controller.dart';
 import '../local_notification_service.dart';
 import '../utils/AppColors.dart';
-import '../widget/drawer.dart';
 import '../widget/loading_animation.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,6 +22,36 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController uidController = TextEditingController();
   RxString errorMessage = ''.obs; // RxString to track error message
 
+
+
+
+  InterstitialAd? _interstitialAd;
+  bool _isInterstitialAdReady = false;
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: 'ca-app-pub-9662671355476806/8816042486', // Your Interstitial Ad Unit ID
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _isInterstitialAdReady = true;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('Failed to load an interstitial ad: ${error.message}');
+          _isInterstitialAdReady = false;
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_isInterstitialAdReady) {
+      _interstitialAd?.show();
+    }
+  }
+
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -29,19 +59,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     checkForUpdate();
     super.initState();
+    homeController.fetchNews();
+    _loadInterstitialAd();
   }
 
   @override
   void dispose() {
     uidController.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const MyAppDrawer(),
-      appBar: _buildAppBar(),
       body: Obx(() => homeController.isLoading.value
           ? const Center(
               child: Column(
@@ -51,32 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : _buildBody(homeController)),
       backgroundColor: Colors.grey[100],
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      title: const Text(
-        'Top Up BD',
-        style: AppTextStyles.appBarTitle,
-      ),
-      backgroundColor: AppColors.primaryColor,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: AppColors.white),
-      actions: [
-        TextButton.icon(
-          icon: const Icon(
-            Icons.headphones,size: 20,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Get.to(()=> const HelpCenterScreen());
-          }, label: const Text(
-          "Help Center",
-          style: TextStyle(color: Colors.white,fontSize: 10),
-        ),
-        ),
-      ],
     );
   }
 
@@ -90,22 +95,26 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 120,
+                  height: 135,
                   width: double.infinity,
                   child: Obx(
                     () => homeController.homeImage.value.isEmpty
                         ? const LoadingAnimation()
                         : InkWell(
-                      onTap: () async {
-                        if (!await launchUrl(Uri.parse("https://youtu.be/bjEzsIzLBjA?si=8avK0o5giBuS_gyC"))) {
-                        throw Exception('Could not launch');
-                        }
-                      },
-                          child: Image.network(
-                              homeController.homeImage.value,
-                              fit: BoxFit.cover,
+                            onTap: () async {
+                              if (!await launchUrl(Uri.parse(
+                                  "https://youtu.be/bjEzsIzLBjA?si=8avK0o5giBuS_gyC"))) {
+                                throw Exception('Could not launch');
+                              }
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.network(
+                                homeController.homeImage.value,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                        ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 13),
@@ -119,32 +128,58 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 5),
                 _buildProductGrid(homeController, constraints),
-                // const ReviewDisplay(reviews: [
-                //   {
-                //     'name': 'Sakib al hasan',
-                //     'time': '1 hour ago',
-                //     'text': 'Great product! I really love the quality and the customer service was fantastic.',
-                //     'rating': 5.0,
-                //   },
-                //   {
-                //     'name': 'Noman',
-                //     'time': '2 hour ago',
-                //     'text': 'The product is okay, but the delivery took too long.',
-                //     'rating': 3.0,
-                //   },
-                //   {
-                //     'name': 'Zoz batler',
-                //     'time': '3 hour ago',
-                //     'text': 'Not satisfied with the product. It broke after a week of use.',
-                //     'rating': 1.0,
-                //   },
-                //   {
-                //     'name': 'Urmi Akter',
-                //     'time': '5 hour ago',
-                //     'text': 'Good value for money. I would recommend this to my friends.',
-                //     'rating': 4.0,
-                //   },
-                // ]),
+                const SizedBox(height: 13),
+                Center(
+                  child: Text(
+                    'আপডেট',
+                    style: constraints.maxWidth > 600
+                        ? AppTextStyles.bodyTextLarge
+                        : AppTextStyles.bodyTextSmall,
+                  ),
+                ),
+                Obx(
+                  () => homeController.news.isEmpty
+                      ? const LoadingAnimation()
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: homeController.news.length,
+                          itemBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: ListTile(
+                              onTap: () {
+                                _showInterstitialAd();
+                                Get.to(() => FullnewsScreen(
+                                    img:
+                                        "https://${homeController.news[index].images.split("/home/kgcemon/htdocs/")[1]}",
+                                    data: homeController.news[index].fullnews, title:  homeController.news[index].title,));
+                              },
+                              leading: Image.network(
+                                "https://${homeController.news[index].images.split("/home/kgcemon/htdocs/")[1]}",
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons
+                                      .image_not_supported); // Show fallback in case of error
+                                },
+                              ),
+                              tileColor: Colors.white,
+                              title: Text(
+                                homeController.news[index].title,
+                                maxLines: 1,
+                                overflow: TextOverflow
+                                    .ellipsis, // Ensure long titles don't overflow
+                              ),
+                              subtitle: Text(
+                                homeController.news[index].title,
+                                maxLines: 2,
+                                // Limit subtitle to 2 lines for better presentation
+                                overflow: TextOverflow
+                                    .ellipsis, // Ensure subtitle doesn't overflow
+                              ),
+                            ),
+                          ),
+                        ),
+                )
               ],
             ),
           ),
@@ -373,7 +408,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Future<void> checkForUpdate() async {
     print('checking for Update');

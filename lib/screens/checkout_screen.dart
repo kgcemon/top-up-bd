@@ -30,13 +30,13 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   TextEditingController paymentNumberController = TextEditingController();
   TextEditingController trxIDController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
   @override
   void initState() {
     checkOutController.loadPayment();
     checkOutController.load();
     super.initState();
   }
+
 
   @override
   void dispose() {
@@ -189,7 +189,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                       color: index ==
                                               checkOutController
                                                   .paymentIndex.value
-                                          ? AppColors.primaryColor
+                                          ? AppColors.primaryColor.withOpacity(0.85)
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(10),
                                       border: Border.all(

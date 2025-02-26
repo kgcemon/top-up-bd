@@ -1,18 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:top_up_bd/data/api_urls.dart';
 
+import '../data/models/news_model.dart';
+
 class HomeController extends GetxController {
   var selectedIndex = 0.obs;
   var products = [].obs;
+  var news = <NewsModel>[].obs;
   var isLoading = true.obs;
   var playerIsLoading = false.obs;
   int selectedProductIndex = -1;
   RxString homeImage = ''.obs;
   RxString playerID = ''.obs;
   RxString catName = ''.obs;
+
 
   // Function to fetch products from the API
   void fetchProducts() async {
@@ -38,13 +43,28 @@ class HomeController extends GetxController {
     }
   }
 
-  // Function to fetch products from the API
+  fetchNews() async {
+    try {
+   if(news.isEmpty){
+     final response =
+     await http.get(Uri.parse("https://codmshopbd.com/myapp/newsapi.php"));
+     if (response.statusCode == 200) {
+       List data = jsonDecode(response.body);
+       for (var element in data) {
+         news.add(NewsModel.fromJson(element));
+       }
+     }
+   }
+    } catch (e) {
+      Get.snackbar("Error", "$e");
+    }
+  }
+
   void fetchSliderImage() async {
     try {
       final response = await http.get(
         Uri.parse(ApiUrls.sliderImageUrls),
       );
-
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         homeImage.value = "https://codmshopbd.com/myapp/${data[0]}";

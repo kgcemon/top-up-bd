@@ -12,10 +12,19 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  final OrderController orderController = Get.put(OrderController());
+
+
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final OrderController orderController = Get.put(OrderController());
 
     // Group and count orders by status
     var processingOrders = orderController.orders
@@ -35,16 +44,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     int canceledOrdersLength = canceledOrders.length;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Profile',
-          style: TextStyle(color: AppColors.white),
-        ),
-        backgroundColor: AppColors.primaryColor,
-        iconTheme: const IconThemeData(color: AppColors.white),
-        elevation: 0,
-      ),
       backgroundColor: Colors.grey[100],
       body: Obx(
         () => orderController.userID.value.isEmpty
@@ -61,6 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           screenWidth,
                           orderController.userName.value,
                           orderController.userPhone.value,
+                          orderController.imgUrl.value
                         ),
                       ),
                       const SizedBox(height: 30),
@@ -71,6 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         canceledOrders: canceledOrdersLength,
                         completedOrders: completedOrdersLength,
                       ),
+                      const SizedBox(height: 10,),
                     ],
                   ),
                 ),
@@ -80,20 +81,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // Builds profile information widget
-  Widget _buildProfileInfo(double screenWidth, String name, String phone) {
+  Widget _buildProfileInfo(double screenWidth, String name, String phone, String img) {
     return Center(
       child: Column(
         children: [
           CircleAvatar(
             radius: screenWidth * 0.15,
             backgroundColor: Colors.grey[300],
-            child: Icon(
+            child: img.isEmpty ? Icon(
               Icons.person,
               size: screenWidth * 0.15,
               color: Colors.grey[600],
-            ),
+            ) : ClipRRect(
+              borderRadius: BorderRadius.circular(90),
+                child: Image.network(img)),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           Text(
             name,
             style: const TextStyle(

@@ -36,6 +36,7 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
   // Initialize the controller
   final ThankYouController controller = Get.put(ThankYouController());
 
+
   @override
   void initState() {
     super.initState();
@@ -46,8 +47,15 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
     }
   }
 
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -59,36 +67,64 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
         iconTheme: const IconThemeData(color: AppColors.white),
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            _buildThankYouIcon(controller),
-            const SizedBox(height: 10),
-            Obx(() => controller.orderDelete.value
-                ? const Card(
-                    color: Colors.red,
-                    child: Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Text(
-                          'পেমেন্ট না করায় আপনার অর্ডার ডিলিট করা হয়েছে দয়া করে ভিডিও দেখে অর্ডার করুন',style: TextStyle(color: Colors.white),),
-                    ))
-                : const Text("")),
-            if (widget.orderStatus == "Auto Topup" ||
-                widget.orderStatus == "Payment Verified")
-              _buildCountdownTimer(controller),
-            _buildOrderSummary(controller),
-            const SizedBox(height: 10,),
-
-            paymentSumery(),
-
-
-            const Spacer(),
-            _buildContinueShoppingButton(context),
-          ],
+      backgroundColor: Colors.white.withOpacity(0.97),
+      body: WillPopScope(
+        onWillPop: () async {
+          return await Get.offAll(() => const MainNavScreen());
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              _buildThankYouIcon(controller),
+              const SizedBox(height: 10),
+              Obx(() => controller.orderDelete.value
+                  ? const Card(
+                      color: Colors.red,
+                      child: Padding(
+                        padding: EdgeInsets.all(15.0),
+                        child: Text(
+                          'পেমেন্ট না করায় আপনার অর্ডার ডিলিট করা হয়েছে দয়া করে ভিডিও দেখে অর্ডার করুন',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ))
+                  : const Text(
+                      "Thanks For Order",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    )),
+              const SizedBox(height: 10),
+              if (widget.orderStatus == "Auto Topup" ||
+                  widget.orderStatus == "Payment Verified")
+                _buildCountdownTimer(controller),
+              _buildOrderSummary(controller),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10),bottomRight: Radius.circular(10)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.network(
+                      widget.paymentImg,
+                      height: 35,
+                      width: 55,
+                    ),
+                    const SizedBox(height: 5),
+                    _buildOrderDetailsRow('Number:', widget.paymentNumber),
+                    const SizedBox(height: 5),
+                    _buildOrderDetailsRow('TrxID:', '${widget.trxID} '),
+                    const SizedBox(height: 5),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              _buildContinueShoppingButton(context),
+            ],
+          ),
         ),
       ),
     );
@@ -111,17 +147,9 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
   Widget _buildOrderSummary(ThankYouController controller) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey[300]!,
-            blurRadius: 5,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.only(topRight: Radius.circular(10),topLeft: Radius.circular(10)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,9 +187,9 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
         Text(
           value,
           style: AppTextStyles.bodyTextSmall.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+              fontWeight: FontWeight.bold,
+              color: Colors.black.withOpacity(0.8),
+              fontSize: 14),
         ),
       ],
     );
@@ -260,34 +288,4 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
             : const Text(''));
   }
 
-  paymentSumery(){
-    return
-    Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey[300]!,
-            blurRadius: 5,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 5),
-          Image.network(widget.paymentImg,height: 35,width: 55,),
-          const SizedBox(height: 5),
-          _buildOrderDetailsRow('Number:', widget.paymentNumber),
-          const SizedBox(height: 5),
-          _buildOrderDetailsRow('TrxID:', '${widget.trxID} '),
-          const SizedBox(height: 5),
-        ],
-      ),
-    );
-  }
 }

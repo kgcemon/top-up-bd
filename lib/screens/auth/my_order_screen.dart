@@ -25,23 +25,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
       backgroundColor: AppColors.backgroundColor,
       body: Obx(() => orderController.userID.value.isEmpty
           ? LoginScreen()
           : orderController.isLoading.value
               ? const Center(child: LoadingAnimation())
               : _buildOrderList(orderController)),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      centerTitle: true,
-      title: const Text('My Orders', style: AppTextStyles.appBarTitle),
-      backgroundColor: AppColors.primaryColor,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: AppColors.white),
     );
   }
 

@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:top_up_bd/controller/auth/order_contrroller.dart';
 import 'dart:convert';  // Moved jsonDecode here for clarity
@@ -11,7 +13,36 @@ class LoginController extends GetxController {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passController = TextEditingController();
 
-  RxMap<String, dynamic> accountResult = RxMap<String, dynamic>({});  // Reactive map for result
+  RxMap<String, dynamic> accountResult = RxMap<String, dynamic>({});// Reactive map for result
+
+
+
+  Future<void> googleSignIn() async {
+    try {
+      loading.value = true;
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      print("${googleUser?.id} emon");
+      if (googleUser != null) {
+        await SharedPreferencesInstance.sharedPreferencesSet('userID', googleUser.id);
+        await SharedPreferencesInstance.sharedPreferencesSet('username', googleUser.displayName);
+        await SharedPreferencesInstance.sharedPreferencesSet('phonenumber', googleUser.email);
+        await SharedPreferencesInstance.sharedPreferencesSet('img', googleUser.photoUrl);
+        Get.put(OrderController()).userID.value = googleUser.id;
+        Get.put(OrderController()).showProfileOrder();
+        Get.put(OrderController()).load();
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      loading.value = false;
+    }
+  }
 
   Future<void> loginAccount(BuildContext context) async {
     loading.value = true;  // Set loading true initially
