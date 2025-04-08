@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:top_up_bd/data/models/order_model.dart';
-import 'package:top_up_bd/screens/auth/login_screen.dart';
+import 'package:mobile_device_identifier/mobile_device_identifier.dart';
+import 'package:top_up_bd/screens/order/order_destails_screen.dart';
 import '../../controller/auth/order_contrroller.dart';
+import '../../data/models/order_history_model.dart';
+import '../../helper/TimeDifferenceMaker.dart';
 import '../../utils/AppColors.dart';
 import '../../widget/loading_animation.dart';
 
@@ -15,22 +17,53 @@ class MyOrdersScreen extends StatefulWidget {
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   final OrderController orderController = Get.put(OrderController());
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    orderController.showProfileOrder();
+    load();
+    _scrollController.addListener(_onScroll);
+  }
+
+  load() async {
+    await MobileDeviceIdentifier().getDeviceId().then(
+          (value) {
+        print(value);
+        orderController.showProfileOrder();
+      },
+    );
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      // Load the next page of data when the user scrolls to the bottom
+      if (orderController.hasMoreData && !orderController.isLoading.value) {
+        orderController.loadNextPage(); // Load more data
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: Obx(() => orderController.userID.value.isEmpty
-          ? LoginScreen()
-          : orderController.isLoading.value
-              ? const Center(child: LoadingAnimation())
-              : _buildOrderList(orderController)),
+      body: SafeArea(
+        child: Obx(() => orderController.isLoading.value && orderController.orders.isEmpty
+            ? const Center(child: LoadingAnimation())
+            : RefreshIndicator(
+          onRefresh: () {
+            return orderController.load();
+          },
+          child: _buildOrderList(orderController),
+        )),
+      ),
     );
   }
 
@@ -45,16 +78,25 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
 
     return ListView.builder(
+      controller: _scrollController, // Attach ScrollController here
       padding: const EdgeInsets.all(16.0),
-      itemCount: orderController.orders.length,
+      itemCount: orderController.orders.length + (orderController.hasMoreData ? 1 : 0),
       itemBuilder: (context, index) {
-        final order = orderController.orders[index];
-        return _buildOrderCard(order);
+        if (index < orderController.orders.length) {
+          final order = orderController.orders[index];
+          return GestureDetector(
+            onTap: () => Get.to(() => OrderDetailsScreen(order: order)),
+            child: _buildOrderCard(order),
+          );
+        } else {
+          // Show a loading indicator at the bottom of the list when loading more data
+          return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,));
+        }
       },
     );
   }
 
-  Widget _buildOrderCard(OrderModel order) {
+  Widget _buildOrderCard(OrderData order) {
     return Card(
       color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
@@ -69,7 +111,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           children: [
             _buildOrderRow(
               label: 'Order No:',
-              value: order.id,
+              value: order.id.toString(),
               isBold: true,
             ),
             const SizedBox(height: 8),
@@ -97,6 +139,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               value: '${order.total} BDT',
               isBold: true,
             ),
+            const SizedBox(height: 8),
+            _buildOrderRow(
+              label: 'Time:',
+              value: timeAgo(DateTime.parse(order.created_at.toString())),
+              isBold: true,
+            ),
           ],
         ),
       ),
@@ -122,15 +170,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Color _getStatusColor(String status) {
-    switch (status) {
-      case 'processing' || 'Payment Verified':
-        return Colors.orange;
-      case 'Completed' || 'Auto Completed':
-        return Colors.green;
-      case 'Auto Topup':
-        return Colors.lightBlue;
-      default:
-        return Colors.red;
+    if (status == 'processing' || status == 'Payment Verified') {
+      return Colors.orange;
+    } else if (status == 'Completed' || status == 'Auto Completed') {
+      return Colors.green;
+    } else if (status == 'Auto Topup') {
+      return Colors.lightBlue;
+    } else {
+      return Colors.red;
     }
   }
 }

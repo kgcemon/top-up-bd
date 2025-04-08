@@ -11,7 +11,7 @@ class AppColors {
   static const Color selectedBorderColor = Colors.blue;
   static const Color unselectedItemColor = Colors.grey;
   static const Color accentColor = Color(0xFF3A8FBD); // Accent color for highlights
-  static const Color textColor = Colors.black87; // Slightly softer black for text
+  static const Color textColor = Colors.black; // Slightly softer black for text
   static const Color errorColor = Colors.redAccent; // Error color for validation
 }
 
@@ -19,7 +19,7 @@ class AppColors {
 class AppTextStyles {
   static const TextStyle appBarTitle = TextStyle(
     fontWeight: FontWeight.bold,
-    fontSize: 24,
+    fontSize: 18,
     color: AppColors.white,
   );
 

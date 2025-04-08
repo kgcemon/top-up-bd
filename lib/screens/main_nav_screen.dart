@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:top_up_bd/screens/home_screen.dart';
 import 'package:top_up_bd/screens/auth/profile_screen.dart';
+import '../controller/auth/profile_Controller.dart';
 import '../controller/home_controller.dart';
 import '../utils/AppColors.dart';
 import '../widget/drawer.dart';
-import 'auth/my_order_screen.dart';
+import 'order/my_order_screen.dart';
 import 'help_center_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
     super.initState();
     homeController.fetchProducts();
     homeController.fetchSliderImage();
+    homeController.isLoginUsers();
   }
 
   final List<Widget> pages = [
@@ -34,36 +36,88 @@ class _MainNavScreenState extends State<MainNavScreen> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => Scaffold(
-      appBar: _buildAppBar(),
-      drawer: const MyAppDrawer(),
-      backgroundColor: Colors.grey[100],
-      bottomNavigationBar: _buildBottomNavigationBar(homeController),
-      body: pages[homeController.selectedIndex.value],
-    ));
+          floatingActionButton: homeController.selectedIndex.value == 0
+              ? SizedBox(
+                  width: 125,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.white,
+                    onPressed: () {
+                      Get.to(() => const HelpCenterScreen());
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/help.png",
+                            width: 30,
+                          ),
+                          const Text(
+                            " Help center",
+                            style: TextStyle(fontSize: 11),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : null,
+          appBar: _buildAppBar(),
+          drawer: const MyAppDrawer(),
+          backgroundColor: Colors.grey[100],
+          bottomNavigationBar: _buildBottomNavigationBar(homeController),
+          body: SafeArea(child: pages[homeController.selectedIndex.value]),
+        ));
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: const Text(
-        'Top Up BD',
+      centerTitle: true,
+      title: Text(
+        homeController.selectedIndex.value == 0
+            ? 'Home'
+            : homeController.selectedIndex.value == 1
+                ? 'Order History'
+                : homeController.selectedIndex.value == 2
+                    ? 'Profile'
+                    : '',
         style: AppTextStyles.appBarTitle,
       ),
       backgroundColor: AppColors.primaryColor,
       elevation: 0,
       iconTheme: const IconThemeData(color: AppColors.white),
       actions: [
-        TextButton.icon(
-          icon: const Icon(
-            Icons.headphones,size: 20,
+        Obx(() => homeController.isLoginUser.value == false
+            ? TextButton(
+          child: const Icon(
+            Icons.notifications,
+            size: 22,
             color: Colors.white,
           ),
           onPressed: () {
-            Get.to(()=> const HelpCenterScreen());
-          }, label: const Text(
-          "Help Center",
-          style: TextStyle(color: Colors.white,fontSize: 10),
-        ),
-        ),
+            Get.put(HomeController()).selectedIndex.value = 2;
+          },
+        )
+            : TextButton(
+          child: Row(
+            children: [
+              Text(
+               '৳ ${ Get.put(ProfileController()).walletBalance.value} ',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const Icon(
+                Icons.wallet,
+                size: 21,
+                color: Colors.white,
+              ),
+            ],
+          ),
+          onPressed: () {
+            Get.put(HomeController()).selectedIndex.value = 2;
+          },
+        ),)
+
       ],
     );
   }

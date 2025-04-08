@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_update/in_app_update.dart';
+import 'package:top_up_bd/controller/auth/order_contrroller.dart';
+import 'package:top_up_bd/controller/auth/profile_Controller.dart';
 import 'package:top_up_bd/screens/checkout_screen.dart';
 import 'package:top_up_bd/screens/fullnews_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,38 +20,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final HomeController homeController = Get.put(HomeController());
+  final ProfileController profileController = Get.put(ProfileController());
+  final OrderController orderController = Get.put(OrderController());
   TextEditingController uidController = TextEditingController();
   RxString errorMessage = ''.obs; // RxString to track error message
-
-
-
-
-  InterstitialAd? _interstitialAd;
-  bool _isInterstitialAdReady = false;
-
-  void _loadInterstitialAd() {
-    InterstitialAd.load(
-      adUnitId: 'ca-app-pub-9662671355476806/8816042486', // Your Interstitial Ad Unit ID
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (InterstitialAd ad) {
-          _interstitialAd = ad;
-          _isInterstitialAdReady = true;
-        },
-        onAdFailedToLoad: (LoadAdError error) {
-          print('Failed to load an interstitial ad: ${error.message}');
-          _isInterstitialAdReady = false;
-        },
-      ),
-    );
-  }
-
-  void _showInterstitialAd() {
-    if (_isInterstitialAdReady) {
-      _interstitialAd?.show();
-    }
-  }
-
 
   @override
   void initState() {
@@ -60,27 +33,109 @@ class _HomeScreenState extends State<HomeScreen> {
     checkForUpdate();
     super.initState();
     homeController.fetchNews();
-    _loadInterstitialAd();
+    profileController.showBalance();
+    homeController.isLoginUsers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //_showSmartPopup();
+    });
+  }
+
+  void _showSmartPopup() async {
+    bool shouldShowPopup = orderController.haveProblem.value;
+
+    if (shouldShowPopup) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Obx(
+                () => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Icon(
+                          Icons.cancel_rounded,
+                          color: Colors.grey,
+                          size: 27,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "অর্ডার নাম্বার ${orderController.problemOrderData.value?.id ?? ''} ",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "আপনি ${orderController.problemOrderData.value?.userdata}"
+                      " ${orderController.problemOrderData.value!.api_response!['message'].toString().contains("Invalid") ? 'এই প্লেয়ার আইডি ভুল দিয়েছেন তাই ডেলিভারি হচ্ছে না দয়া করে 01828861788 এই নাম্বারে whatsApp এ অর্ডার নাম্বার এবং সঠিক আইডি দিন ভুল হওয়া অর্ডার রাত ১০ টায় দেওয়া হয় তাই রাত ১০ টার আগেই যোগাযোগ করুন' : orderController.problemOrderData.value!.api_response!['message'].toString()}",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'ঠিক আছে',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
   void dispose() {
     uidController.dispose();
-    _interstitialAd?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(() => homeController.isLoading.value
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [LoadingAnimation(), Text("Loading..")],
-              ),
-            )
-          : _buildBody(homeController)),
+      body: SafeArea(
+        child: Obx(() => homeController.isLoading.value
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [LoadingAnimation(), Text("Loading..")],
+                ),
+              )
+            : _buildBody(homeController)),
+      ),
       backgroundColor: Colors.grey[100],
     );
   }
@@ -148,11 +203,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: ListTile(
                               onTap: () {
-                                _showInterstitialAd();
                                 Get.to(() => FullnewsScreen(
-                                    img:
-                                        "https://${homeController.news[index].images.split("/home/kgcemon/htdocs/")[1]}",
-                                    data: homeController.news[index].fullnews, title:  homeController.news[index].title,));
+                                      img:
+                                          "https://${homeController.news[index].images.split("/home/kgcemon/htdocs/")[1]}",
+                                      data: homeController.news[index].fullnews,
+                                      title: homeController.news[index].title,
+                                    ));
                               },
                               leading: Image.network(
                                 "https://${homeController.news[index].images.split("/home/kgcemon/htdocs/")[1]}",
@@ -166,8 +222,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               title: Text(
                                 homeController.news[index].title,
                                 maxLines: 1,
-                                overflow: TextOverflow
-                                    .ellipsis, // Ensure long titles don't overflow
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize:
+                                        13), // Ensure long titles don't overflow
                               ),
                               subtitle: Text(
                                 homeController.news[index].title,
@@ -219,6 +277,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: InkWell(
               onTap: () {
+                homeController.checkUserIsLoginAndWalletUseAble(
+                    orderAmount: product['price'],
+                    myWallet:
+                        double.parse(profileController.walletBalance.value));
                 homeController.selectProduct(index);
                 _showPlayerIDDialog(context,
                     price: "${product['price']}৳",
@@ -278,8 +340,9 @@ class _HomeScreenState extends State<HomeScreen> {
             InkWell(
                 onTap: () => Get.back(),
                 child: const Icon(
-                  Icons.backspace_outlined,
+                  Icons.cancel,
                   color: Colors.red,
+                  size: 30,
                 ))
           ],
         ),
@@ -350,54 +413,64 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
-          ElevatedButton(
-            onPressed: () {
-              homeController.playerIsLoading.value = false;
-              String input = uidController.text;
-              bool _isInt = int.tryParse(
-                      input.removeAllWhitespace.trim().replaceAll("-", "")) ==
-                  null; // will be true if it's a valid integer, false otherwise
-              if (uidController.text.isEmpty ||
-                  uidController.text.length < 6 ||
-                  _isInt) {
-                errorMessage.value = "Please Give Valid Player ID";
-              } else {
-                errorMessage.value = '';
-                homeController
-                    .playerIdCheck(
-                        uid: uidController.text.removeAllWhitespace
-                            .replaceAll("-", "")
-                            .trim())
-                    .then(
-                  (value) {
-                    if (value == true) {
-                      Get.to(() => CheckOutScreen(
-                            prices: price,
-                            productName:
-                                "${homeController.catName.value} $products",
-                            playerIDname: homeController.playerID.value,
-                            playerID: uidController.text,
-                            productID: '',
-                          ));
-                    } else {
-                      errorMessage.value = homeController.playerID.value;
-                    }
-                  },
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 45),
-              backgroundColor: AppColors.primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+          Obx(
+            () => ElevatedButton(
+              onPressed: () {
+                homeController.playerIsLoading.value = false;
+                String input = uidController.text;
+                bool isInt = int.tryParse(
+                        input.removeAllWhitespace.trim().replaceAll("-", "")) ==
+                    null;
+                if (uidController.text.isEmpty ||
+                    uidController.text.length < 6 ||
+                    isInt) {
+                  errorMessage.value = "Please Give Valid Player ID";
+                } else {
+                  errorMessage.value = '';
+                  homeController
+                      .playerIdCheck(
+                          uid: uidController.text.removeAllWhitespace
+                              .replaceAll("-", "")
+                              .trim())
+                      .then(
+                    (value) {
+                      if (value == true) {
+                        if (homeController.userIsWallet.value) {
+                          homeController.orderWithWallet(
+                              playerID: uidController.text,
+                              productID: productsID);
+                        } else {
+                          Get.to(() => CheckOutScreen(
+                                prices: price,
+                                productName:
+                                    "${homeController.catName.value} $products",
+                                playerIDname: homeController.playerID.value,
+                                playerID: uidController.text,
+                                productID: productsID,
+                              ));
+                        }
+                      } else {
+                        errorMessage.value = homeController.playerID.value;
+                      }
+                    },
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 45),
+                backgroundColor: AppColors.primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-            ),
-            child: const Text(
-              'Submit',
-              style: TextStyle(
-                color: AppColors.white,
-                fontWeight: FontWeight.w600,
+              child: Text(
+                homeController.userIsWallet.value == true
+                    ? 'Pay With Wallet'
+                    : 'Submit',
+                style: const TextStyle(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

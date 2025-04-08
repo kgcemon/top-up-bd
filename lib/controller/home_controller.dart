@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:top_up_bd/data/api_urls.dart';
-
+import 'package:top_up_bd/networkCaller/NetworkCaller.dart';
+import 'package:top_up_bd/controller/auth/user_auth_controller.dart';
+import 'package:top_up_bd/screens/thank_you_screen.dart';
 import '../data/models/news_model.dart';
+import '../utils/SharedPreferencesInstance.dart';
 
 class HomeController extends GetxController {
   var selectedIndex = 0.obs;
@@ -17,7 +19,35 @@ class HomeController extends GetxController {
   RxString homeImage = ''.obs;
   RxString playerID = ''.obs;
   RxString catName = ''.obs;
+  RxBool userIsWallet = false.obs;
+  RxBool isLoginUser = false.obs;
 
+
+
+   void isLoginUsers()async{
+    await AuthController.getUserToken().then((value) {
+      print(value);
+      if(value != null){
+        isLoginUser.value = true;
+      }else if(value == null){
+        isLoginUser.value = false;
+      }
+      print(isLoginUser.value);
+    },);
+  }
+
+
+  checkUserIsLoginAndWalletUseAble(
+      {required orderAmount, required double myWallet}) async {
+    String? user = await AuthController.getUserToken();
+    orderAmount = int.parse(orderAmount);
+    print(orderAmount);
+    if (user != null && myWallet >= orderAmount) {
+      userIsWallet.value = true;
+    } else {
+      userIsWallet.value = false;
+    }
+  }
 
   // Function to fetch products from the API
   void fetchProducts() async {
@@ -26,6 +56,8 @@ class HomeController extends GetxController {
         Uri.parse('${ApiUrls.mainUrls}/topupbd/topupbd.php?category_id=15'),
       );
 
+      print(response.body);
+      print(response.body);
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         if (kDebugMode) {
@@ -45,16 +77,16 @@ class HomeController extends GetxController {
 
   fetchNews() async {
     try {
-   if(news.isEmpty){
-     final response =
-     await http.get(Uri.parse("https://codmshopbd.com/myapp/newsapi.php"));
-     if (response.statusCode == 200) {
-       List data = jsonDecode(response.body);
-       for (var element in data) {
-         news.add(NewsModel.fromJson(element));
-       }
-     }
-   }
+      if (news.isEmpty) {
+        final response = await http
+            .get(Uri.parse("https://codmshopbd.com/myapp/newsapi.php"));
+        if (response.statusCode == 200) {
+          List data = jsonDecode(response.body);
+          for (var element in data) {
+            news.add(NewsModel.fromJson(element));
+          }
+        }
+      }
     } catch (e) {
       Get.snackbar("Error", "$e");
     }
@@ -137,6 +169,32 @@ class HomeController extends GetxController {
         print("Error occurred: $e");
       }
       return true; // Return false in case of an error
+    }
+  }
+
+  orderWithWallet({
+    required String playerID,
+    required String productID,
+  }) async {
+    var token = await SharedPreferencesInstance.sharedPreferencesGet("token");
+
+    var response = await NetworkCaller.postRequest(
+        "https://app.codmshopbd.com/api/order-with-wallet",
+        {"product_id": productID, "playerId": playerID, "token": token});
+
+    if (response.responseBody['status'] == true) {
+      Get.offAll(() => ThankYouScreen(
+          orderID: response.responseBody['data']['id'].toString(),
+          date: response.responseBody['data']['datetime'] ?? '',
+          total: response.responseBody['data']['total'],
+          playerID: response.responseBody['data']['userdata'],
+          orderStatus: response.responseBody['data']['status'],
+          product: response.responseBody['data']['itemtitle'],
+          paymentImg: 'https://app.codmshopbd.com/wallet.png',
+          paymentNumber: response.responseBody['data']['bkash_number'],
+          trxID: response.responseBody['data']['trxid']));
+    } else {
+      Get.snackbar("Error", response.responseBody['message']);
     }
   }
 }

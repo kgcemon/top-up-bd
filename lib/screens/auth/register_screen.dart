@@ -12,101 +12,106 @@ class RegisterScreen extends StatelessWidget {
         Get.put(RegisterScreenController());
 
     return Scaffold(
+      appBar: AppBar(backgroundColor: AppColors.primaryColor,title: Text("Register",style: TextStyle(color: Colors.white),),),
+      extendBodyBehindAppBar: true,  // Enable drawing behind the app bar
+      extendBody: true,
       backgroundColor: Colors.grey[100],
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Form(
-              key: controller.formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 50),
-                  const Text(
-                    'Create Account',
-                    style: AppTextStyles.bodyTextLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Sign up to get started',
-                    style: AppTextStyles.bodyTextSmall,
-                  ),
-                  const SizedBox(height: 40),
-                  _buildTextField(
-                    controller: controller.nameController,
-                    label: 'Name',
-                    hintText: 'Enter your name',
-                    icon: Icons.person_outline,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _buildTextField(
-                    controller: controller.phoneController,
-                    label: 'Phone Number',
-                    hintText: 'Enter your phone number',
-                    icon: Icons.phone,
-                    validator: (value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          value.length < 10 ||
-                          value.length > 14) {
-                        return 'Please enter your phone number';
-                      }
-                      if (!RegExp(r'^\d{10,15}$').hasMatch(value)) {
-                        return 'Enter a valid phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _buildTextField(
-                    controller: controller.passController,
-                    label: 'Password',
-                    hintText: 'Enter your password',
-                    icon: Icons.lock_outline,
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _buildTextField(
-                    controller: controller.confirmPassController,
-                    label: 'Confirm Password',
-                    hintText: 'Re-enter your password',
-                    icon: Icons.lock_outline,
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      if (value != controller.passController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 40),
-                  Obx(() {
-                    return controller.loading.value
-                        ? const Center(child: CircularProgressIndicator())
-                        : _buildRegisterButton(context, controller);
-                  }),
-                  const SizedBox(height: 20),
-                  _buildLoginOption(),
-                ],
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Form(
+                key: controller.formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 50),
+                    const Text(
+                      'Create Account',
+                      style: AppTextStyles.bodyTextLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Sign up to get started',
+                      style: AppTextStyles.bodyTextSmall,
+                    ),
+                    const SizedBox(height: 40),
+                    _buildTextField(
+                      controller: controller.nameController,
+                      label: 'Name',
+                      hintText: 'Enter your name',
+                      icon: Icons.person_outline,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                      controller: controller.phoneController,
+                      label: 'Phone Number',
+                      hintText: 'Enter your phone number',
+                      icon: Icons.phone,
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 10 ||
+                            value.length > 14) {
+                          return 'Please enter your phone number';
+                        }
+                        if (!RegExp(r'^\d{10,15}$').hasMatch(value)) {
+                          return 'Enter a valid phone number';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                      controller: controller.passController,
+                      label: 'Password',
+                      hintText: 'Enter your password',
+                      icon: Icons.lock_outline,
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                      controller: controller.confirmPassController,
+                      label: 'Confirm Password',
+                      hintText: 'Re-enter your password',
+                      icon: Icons.lock_outline,
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please confirm your password';
+                        }
+                        if (value != controller.passController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 40),
+                    Obx(() {
+                      return controller.loading.value
+                          ? const Center(child: CircularProgressIndicator())
+                          : _buildRegisterButton(context, controller);
+                    }),
+                    const SizedBox(height: 20),
+                    _buildLoginOption(),
+                  ],
+                ),
               ),
             ),
           ),

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:top_up_bd/utils/url_launcher.dart';
 import 'package:url_launcher/url_launcher.dart'; // Import to handle phone and messaging actions
 import '../../utils/AppColors.dart';
 
 class HelpCenterScreen extends StatelessWidget {
-  const HelpCenterScreen({Key? key}) : super(key: key);
+  const HelpCenterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,28 +19,30 @@ class HelpCenterScreen extends StatelessWidget {
         elevation: 0,
       ),
       backgroundColor: Colors.grey[100],
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              'Get in touch with us:',
-              style: TextStyle(
-                color: AppColors.primaryColor,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              const Text(
+                'Get in touch with us:',
+                style: TextStyle(
+                  color: AppColors.primaryColor,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const Text("  কল দিনঃ 01828861788 (সকাল ১০ টা থেকে রাত ১১ টা)",style: TextStyle(fontSize: 10),),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                children: _buildHelpOptions(context),
+              const Text("  কল দিনঃ 01828861788 (সকাল ১০ টা থেকে রাত ১১ টা)",style: TextStyle(fontSize: 10),),
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView(
+                  children: _buildHelpOptions(context),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

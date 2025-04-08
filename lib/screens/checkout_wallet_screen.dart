@@ -5,27 +5,21 @@ import 'package:top_up_bd/widget/loading_animation.dart';
 import '../controller/checkout_controller.dart';
 import '../utils/AppColors.dart';
 
-class CheckOutScreen extends StatefulWidget {
+class WalletCheckOutScreen extends StatefulWidget {
   final String prices;
   final String productName;
-  final String playerIDname;
-  final String playerID;
-  final String productID;
 
-  const CheckOutScreen({
+  const WalletCheckOutScreen({
     super.key,
     required this.prices,
     required this.productName,
-    required this.playerIDname,
-    required this.playerID,
-    required this.productID,
   });
 
   @override
-  State<CheckOutScreen> createState() => _CheckOutScreenState();
+  State<WalletCheckOutScreen> createState() => _WalletCheckOutScreenState();
 }
 
-class _CheckOutScreenState extends State<CheckOutScreen> {
+class _WalletCheckOutScreenState extends State<WalletCheckOutScreen> {
   final CheckOutController checkOutController = Get.put(CheckOutController());
   TextEditingController paymentNumberController = TextEditingController();
   TextEditingController trxIDController = TextEditingController();
@@ -72,7 +66,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   SizedBox(height: screenHeight * 0.02),
                   _buildPaymentDetails(checkOutController, screenWidth),
                   SizedBox(height: screenHeight * 0.02),
-                  _buildPlaceOrderButton(checkOutController),
+                  _buildPlaceOrderButton(checkOutController, widget.productName, widget.prices, paymentNumberController.text, trxIDController.text),
                 ],
               ),
             ),
@@ -103,12 +97,9 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                     border: Border.all(color: AppColors.primaryColor)),
-                child: FittedBox(
-                    child: Text(
-                  widget.playerIDname.isEmpty
-                      ? widget.playerID
-                      : widget.playerIDname,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                child: const FittedBox(
+                    child: Text( 'WALLET',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 )),
               ),
               const SizedBox(
@@ -323,7 +314,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   }
 
   // Widget for "Place Order" button
-  Widget _buildPlaceOrderButton(CheckOutController controller) {
+  Widget _buildPlaceOrderButton(CheckOutController controller, product,amount,paymentnumber,trxid) {
     return SizedBox(
       width: double.infinity,
       child: Obx(
@@ -331,16 +322,7 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
           onPressed: controller.isPlacingOrder.value
               ? null
               : () {
-                  if (_formKey.currentState!.validate()) {
-                    controller.placeOrder(
-                      productId: widget.productID,
-                      bkash_number: paymentNumberController.text,
-                      trxid: trxIDController.text,
-                      userdata: widget.playerID,
-                      itemtitle: widget.productName,
-                      total: widget.prices,
-                    );
-                  }
+            controller.placeWalletDepositOrder(product: product, amount: amount, paymentnumber: paymentnumber, trxid: trxid);
                 },
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
