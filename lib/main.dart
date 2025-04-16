@@ -20,11 +20,11 @@ Future<void> firebaseBackgroundMessage(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferencesInstance.sharedPreferencesGet("token");
+  await SharedPreferencesInstance.sharedPreferencesGet("token");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  PushNotifications.init();
+  await PushNotifications.init();
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessage);
 
   await AuthController.getUserToken() ?? '';

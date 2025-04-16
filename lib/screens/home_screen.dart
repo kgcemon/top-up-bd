@@ -34,88 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     homeController.fetchNews();
     profileController.showBalance();
-    homeController.isLoginUsers();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      //_showSmartPopup();
-    });
   }
 
-  void _showSmartPopup() async {
-    bool shouldShowPopup = orderController.haveProblem.value;
 
-    if (shouldShowPopup) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            backgroundColor: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Obx(
-                () => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Icon(
-                          Icons.cancel_rounded,
-                          color: Colors.grey,
-                          size: 27,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "অর্ডার নাম্বার ${orderController.problemOrderData.value?.id ?? ''} ",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      "আপনি ${orderController.problemOrderData.value?.userdata}"
-                      " ${orderController.problemOrderData.value!.api_response!['message'].toString().contains("Invalid") ? 'এই প্লেয়ার আইডি ভুল দিয়েছেন তাই ডেলিভারি হচ্ছে না দয়া করে 01828861788 এই নাম্বারে whatsApp এ অর্ডার নাম্বার এবং সঠিক আইডি দিন ভুল হওয়া অর্ডার রাত ১০ টায় দেওয়া হয় তাই রাত ১০ টার আগেই যোগাযোগ করুন' : orderController.problemOrderData.value!.api_response!['message'].toString()}",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'ঠিক আছে',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    }
-  }
 
   @override
   void dispose() {

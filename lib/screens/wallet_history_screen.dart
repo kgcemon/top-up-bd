@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:top_up_bd/utils/AppColors.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
-
+import 'package:intl/intl.dart';
 import '../controller/wallet_history_controller.dart';
 
 class WalletHistoryScreen extends StatefulWidget {
@@ -15,9 +14,12 @@ class WalletHistoryScreen extends StatefulWidget {
 class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
   final ScrollController _scrollController = ScrollController();
 
+  final WalletHistoryController walletHistoryController = Get.put(WalletHistoryController());
+
   @override
   void initState() {
     super.initState();
+    walletHistoryController.loadFullHistory();
     _scrollController.addListener(_onScroll);
   }
 

@@ -1,19 +1,26 @@
 import 'package:get/get.dart';
 import 'package:top_up_bd/networkCaller/NetworkCaller.dart';
 import '../data/models/wallet_history_model.dart';
+import 'auth/user_auth_controller.dart';
 
 class WalletHistoryController extends GetxController {
-  RxBool _isLoading = false.obs;
+  final RxBool _isLoading = false.obs;
 
   bool get isLoading => _isLoading.value;
 
   RxList<Datum> historyList = <Datum>[].obs;
   int currentPage = 1;
-  bool hasMoreData = true; // Flag to indicate if there are more pages to load.
-  int perPage = 10; // Set a default value, it can be updated from the response
+  bool hasMoreData = true;
+  int perPage = 10;
 
   Future<void> loadFullHistory({int page = 1}) async {
-    if (_isLoading.value) return; // Prevent multiple requests at the same time.
+    String? token = await AuthController.getUserToken();
+
+    if(token == null){
+      return;
+    }
+
+    if (_isLoading.value) return;
 
     _isLoading.value = true;
     update();
@@ -27,16 +34,14 @@ class WalletHistoryController extends GetxController {
       try {
         final walletHistoryModel = WalletHistoryModel.fromJson(response.responseBody);
         if (walletHistoryModel.status) {
-          // Extract data from the 'data' field of the response.
-          final data = walletHistoryModel.data.data; // Access the nested 'data' list
+
+          final data = walletHistoryModel.data.data;
           final total = walletHistoryModel.data.total;
           final perPageFromServer = walletHistoryModel.data.perPage;
 
           if (page == 1) {
-            // Clear the list when loading the first page
             historyList.value = data;
           } else {
-            // Append new data to the existing list
             historyList.addAll(data);
           }
 

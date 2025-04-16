@@ -24,7 +24,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
     super.initState();
     homeController.fetchProducts();
     homeController.fetchSliderImage();
-    homeController.isLoginUsers();
+    //homeController.isLoginUsers();
   }
 
   final List<Widget> pages = [

@@ -35,6 +35,81 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
     checkOutController.loadPayment();
     checkOutController.load();
     super.initState();
+
+  }
+
+  void _showSmartPopup() async {
+    bool shouldShowPopup = true;
+
+    if (shouldShowPopup) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Icon(
+                        Icons.cancel_rounded,
+                        color: Colors.grey,
+                        size: 27,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "সতর্কতা",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
+                    "মা-বাবা অথবা অন্য কারো ফোন থেকে অনুমতি ছাড়া বিকাশে টাকা দিয়ে অর্ডার করলে ঐ ডায়মন্ড পাবেন না। আমারা যে কোন সময় ঐ বিকাশ নাম্বারে কল দিয়ে ভেরিফাই করবো তারপর অর্ডার ডেলিভারি করবো",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'ঠিক আছে',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
 
@@ -178,6 +253,12 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                               child: Obx(
                                 () => InkWell(
                                   onTap: () {
+                                    print(checkOutController.paymentMethods[index].paymentName);
+                                    String payName = checkOutController.paymentMethods[index].paymentName;
+                                    if( payName.contains('bKash')){
+                                      print("object");
+                                      _showSmartPopup();
+                                    }
                                     checkOutController.paymentIndex.value =
                                         index;
                                     checkOutController

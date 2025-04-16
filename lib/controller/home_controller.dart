@@ -136,10 +136,9 @@ class HomeController extends GetxController {
       }
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        bool isValid = data['error'] != null &&
-            !data['error']
+        bool isValid = data['message']
                 .toString()
-                .contains("HTTP Error during POST request");
+                .contains("Invalid player ID");
         bool isValidRegion = data['region'] != null && data['region'] != "BD";
         if (isValid) {
           playerID.value = "আইডি ভুল সঠিক আইডি দিন";
